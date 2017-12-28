@@ -8,7 +8,7 @@ var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db-stats.js' ).BlockStat;
 
 var updateStats = function() {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545')); 
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9646')); 
 
     mongoose.connect( 'mongodb://localhost/blockDB' );
     mongoose.set('debug', true);

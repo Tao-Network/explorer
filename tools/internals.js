@@ -6,7 +6,7 @@ require( '../db-internal.js' );
 
 var http = require('http');
 var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
 
 var mongoose = require( 'mongoose' );
 var InternalTx     = mongoose.model( 'InternalTransaction' );
@@ -25,7 +25,7 @@ function grabInternalTxs(batchNum, batchSize) {
 
   var post_options = {
       host: 'localhost',
-      port: '8545',
+      port: '9646',
       path: '/',
       method: 'POST',
       headers: { "Content-Type": "application/json" }
