@@ -64,6 +64,9 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
           {"type": "date", "targets": 6},
           {"orderable": false, "targets": [0,2,3]},
           { "render": function(data, type, row) {
+                        return data * 1000000000000000000
+                      }, "targets": [4]},
+          { "render": function(data, type, row) {
                         if (data != $scope.addrHash)
                           return '<a href="/addr/'+data+'">'+data+'</a>'
                         else
