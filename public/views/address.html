@@ -46,6 +46,7 @@
                           <th width="15%"> From </th>
                           <th width="15%"> To </th>
                           <th width="10%"> ETZ </th>
+                          <th width="0%"> gas </th>
                           <th width="12%"> Age </th>
                       </tr>
                   </thead>
@@ -61,6 +62,7 @@
                         <th width="15%"> From </th>
                         <th width="15%"> To </th>
                         <th width="10%"> ETZ </th>
+                        <th width="0%"> gas </th>
                         <th></th>
                     </tr>
                 </thead>
@@ -71,6 +73,7 @@
                         <td class="truncate-addrhash"> <a href="/addr/{{t.from}}">{{t.from}}</a> </td>
                         <td class="truncate-addrhash"> <a href="/addr/{{t.to}}">{{t.to}}</a> </td>
                         <td style="text-align:right"> {{t.value}} </td>
+                        <td style="text-align:right"> {{t.gas}} </td>
                         <td style="text-align:center"><span class="label label-sm label-info {{t.type}}"> {{t.type}}</span><span class="label label-sm label-danger" ng-show="t.error"> {{t.error}}</span></td>
                     </tr>
                 </tbody>
