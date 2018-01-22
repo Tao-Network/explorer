@@ -53,8 +53,9 @@ var getAddr = function(req, res){
 
   addrFind.lean(true).sort('-blockNumber').skip(start).limit(limit)
           .exec("find", function (err, docs) {
-            if (docs)
+              if (docs){
               data.data = filters.filterTX(docs, addr);      
+              }
             else 
               data.data = [];
             res.write(JSON.stringify(data));

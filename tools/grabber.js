@@ -11,7 +11,7 @@ var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 
 var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + 
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
         config.gethPort.toString()));
 
 
@@ -194,7 +194,7 @@ var writeTransactionsToDB = function(config, blockData) {
   Patch Missing Blocks
 */
 var patchBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + 
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
         config.gethPort.toString()));
 
     // number of blocks should equal difference in block numbers
@@ -243,7 +243,7 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 var config = {};
 
 try {
-    var configContents = fs.readFileSync('config.json');
+    var configContents = fs.readFileSync('/data/explorer/tools/config.json');
     config = JSON.parse(configContents);
 }
 catch (error) {
@@ -270,7 +270,7 @@ if (!('output' in config) || (typeof config.output) !== 'string') {
 // set the default blocks if it's not provided
 if (!('blocks' in config) || !(Array.isArray(config.blocks))) {
     config.blocks = [];
-    config.blocks.push({'start': 0, 'end': 'latest'});
+    config.blocks.push({'start': 4936270, 'end': 'latest'});
 }
 
 console.log('Using configuration:');
