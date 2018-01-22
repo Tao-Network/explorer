@@ -18,7 +18,7 @@ var filterTrace = require('./filters').filterTrace;
 if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
-  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+  web3 = new Web3(new Web3.providers.HttpProvider("http://rpc.etherzero.org:9646"));
 }
 
 if (web3.isConnected()) 
@@ -43,6 +43,7 @@ exports.data = function(req, res){
         res.end();
       } else {
         var ttx = tx;
+        ttx.value = tx.value;
         ttx.value = etherUnits.toEther( new BigNumber(tx.value), "wei");
         //get timestamp from block
         var block = web3.eth.getBlock(tx.blockNumber, function(err, block) {
