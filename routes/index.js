@@ -14,8 +14,8 @@ module.exports = function(app){
   // var Token = require('./token');
 
   // var compile = require('./compiler');
-  var fiat = require('./fiat');
-  var stats = require('./stats');
+  // var fiat = require('./fiat');
+  // var stats = require('./stats');
 
   /* 
     Local DB: data request format
@@ -27,14 +27,15 @@ module.exports = function(app){
   app.post('/tx', getTx);
   app.post('/block', getBlock);
   app.post('/data', getData);
+  app.get('/totaletz', getTotalEtz);
 
   // app.post('/daorelay', DAO);
   // app.post('/tokenrelay', Token);  
   app.post('/web3relay', web3relay.data);
   // app.post('/compile', compile);
 
-  app.post('/fiat', fiat);
-  app.post('/stats', stats);
+  // app.post('/fiat', fiat);
+  // app.post('/stats', stats);
   
 
 }
@@ -133,6 +134,18 @@ var getData = function(req, res){
   }
 
 };
+
+var getTotalEtz = function(req, res) {
+  var block = Block.findOne({}, "number")
+                      .lean(true).sort('-number');
+  block.exec(function (err, doc) {
+    // res.write(JSON.stringify(doc));
+    var total = 194000000 + (doc.number - 4936270) * 1.8;
+    res.write(total.toString());
+    res.end();
+  });
+} 
+
 
 /* 
   temporary blockstats here
