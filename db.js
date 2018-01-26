@@ -59,4 +59,4 @@ module.exports.Contract = mongoose.model('Contract');
 module.exports.Transaction = mongoose.model('Transaction');
 
 mongoose.connect( 'mongodb://localhost/blockDB' );
-mongoose.set('debug', true);
+mongoose.set('debug', false);

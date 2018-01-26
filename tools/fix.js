@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require( '../db.js' );
 var etherUnits = require("../lib/etherUnits.js");
 var BigNumber = require('bignumber.js');
@@ -245,7 +243,7 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 var config = {};
 
 try {
-    var configContents = fs.readFileSync('/data/explorer/tools/config.json');
+    var configContents = fs.readFileSync('/data/explorer/tools/config-fix.json');
     config = JSON.parse(configContents);
 }
 catch (error) {

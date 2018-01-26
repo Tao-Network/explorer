@@ -1,6 +1,4 @@
-/*
-  Tool for calculating block stats
-*/
+#!/usr/bin/env node
 
 var Web3 = require('web3');
 
