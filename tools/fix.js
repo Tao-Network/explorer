@@ -238,7 +238,7 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 
 
 /** On Startup **/
-// geth --rpc --rpcaddr "localhost" --rpcport "8545"  --rpcapi "eth,net,web3"
+// geth --rpc --rpcaddr "localhost" --rpcport "9646"  --rpcapi "eth,net,web3"
 
 var config = {};
 

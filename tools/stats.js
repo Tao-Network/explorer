@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+/*
+  Tool for calculating block stats
+*/
 
 var Web3 = require('web3');
 
@@ -6,9 +8,9 @@ var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db-stats.js' ).BlockStat;
 
 var updateStats = function() {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:9646')); 
-
-    mongoose.connect( 'mongodb://localhost/blockDB' );
+    // var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:9646')); 
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9646')); 
+    mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
     mongoose.set('debug', true);
 
     var latestBlock = web3.eth.blockNumber;
@@ -88,7 +90,7 @@ var checkBlockDBExistsThenWrite = function(web3, blockData, nextTime) {
 }
 
 /** On Startup **/
-// geth --rpc --rpcaddr "localhost" --rpcport "8545"  --rpcapi "eth,net,web3"
+// geth --rpc --rpcaddr "localhost" --rpcport "9646"  --rpcapi "eth,net,web3"
 
 var minutes = 1;
 statInterval = minutes * 60 * 1000;

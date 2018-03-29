@@ -49,7 +49,30 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
           });
         } else 
             $scope.errors.address = "Invalid Address";
+    }
 
+    $scope.transferTokens=function(lastId) {
+      console.log("【request】 tokenTransfer");
+      $http({
+        method: 'POST',
+        url: '/tokenrelay',
+        data: {"action": "tokenTransfer", "address": address, "lastId":lastId}
+      }).success(function(repData) {
+        console.log("transfer_tokens:", repData);
+        $scope.transfer_tokens = repData;
+      });
+    }
+    
+    $scope.contractTransaction=function() {
+      console.log("【request】 contractTransaction");
+      $http({
+        method: 'POST',
+        url: '/tokenrelay',
+        data: {"action": "contractTransaction", "address": address}
+      }).success(function(repData) {
+        console.log("contractTransaction:", repData);
+        $scope.contractTxList = repData;
+      });
     }
 
 })

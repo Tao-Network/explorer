@@ -20,7 +20,7 @@ var daoContract = eth.contract(daoABI);
 var DAO = daoContract.at("0xbb9bc244d798123fde783fcc1c72d3bb8c189413");
 
 module.exports = function(req, res){
-  console.log(req.body)
+  console.log(req.body);
 
   if (!("action" in req.body))
     res.status(400).send();

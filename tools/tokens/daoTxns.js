@@ -29,12 +29,12 @@ else
   throw "No connection";
 
 
-var daoABI = [{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_amount","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_amount","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"FuelingToDate","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"CreatedToken","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Refund","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"proposalID","type":"uint256"},{"indexed":false,"name":"recipient","type":"address"},{"indexed":false,"name":"amount","type":"uint256"},{"indexed":false,"name":"newCurator","type":"bool"},{"indexed":false,"name":"description","type":"string"}],"name":"ProposalAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"proposalID","type":"uint256"},{"indexed":false,"name":"position","type":"bool"},{"indexed":true,"name":"voter","type":"address"}],"name":"Voted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"proposalID","type":"uint256"},{"indexed":false,"name":"result","type":"bool"},{"indexed":false,"name":"quorum","type":"uint256"}],"name":"ProposalTallied","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_newCurator","type":"address"}],"name":"NewCurator","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_recipient","type":"address"},{"indexed":false,"name":"_allowed","type":"bool"}],"name":"AllowedRecipientChanged","type":"event"}];
+var daoABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"acceptOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"},{"name":"data","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"newOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferAnyERC20Token","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"tokenOwner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Approval","type":"event"}];
 var daoContract = web3.eth.contract(daoABI);
-var DAO = daoContract.at("0xbb9bc244d798123fde783fcc1c72d3bb8c189413");
+var DAO = daoContract.at("0xf5dbf200ef330f9e857f8abd462a4897f4ee663f");
 
-var creationBlock = 1428757;
-var creationEnd = 1599205;
+var creationBlock = 310;
+var creationEnd = 523;
 
 var populateCreatedTokens = function () {
   //total: 58713
@@ -43,6 +43,7 @@ var populateCreatedTokens = function () {
   event({}, {fromBlock: creationBlock, toBlock: creationEnd}).get( function(err, log) {
       if (err) {
         console.error(err);
+        console.log("close:event");
         process.exit(9);
       } else {
         for (var l in log) {
@@ -82,11 +83,13 @@ var populateCreatedTokens = function () {
 }
 
 var populateTransferTokens = function () {
-
   var event = DAO.Transfer;
-  event({}, {fromBlock: creationEnd, toBlock: "latest"}).get( function(err, log) {
+  var transferEventFilter = event({}, {fromBlock: 0, toBlock: "latest"});
+  var endBlockNum = 0;
+  transferEventFilter.get( function(err, log) {
       if (err) {
         console.error(err);
+        console.log("err");
         process.exit(9);
       } else {
         for (var l in log) {
@@ -94,14 +97,15 @@ var populateTransferTokens = function () {
             var newToken = {
                 "transactionHash": log[l].transactionHash,
                 "blockNumber": log[l].blockNumber,
-                "amount": log[l].args._amount,
-                "to": log[l].args._to,
-                "from": log[l].args._from
+                "amount": log[l].args.tokens,
+                "to": log[l].args.to,
+                "from": log[l].args.from
             }
           } catch (e) {
             console.error(e);
             continue;
           }
+          endBlockNum = log[l].blockNumber;
           try {
             var block = web3.eth.getBlock(log[l].blockNumber);
             newToken.timestamp = block.timestamp;
@@ -128,9 +132,32 @@ var populateTransferTokens = function () {
             
           });        
         }
+
+        //继续监听后续增加的事件
+        var transferEventWatchFilter = event({}, {fromBlock: web3.eth.blockNumber, toBlock: "latest"});
+        transferEventWatchFilter.watch(onTokenTransfer);
       }
 
   });
+
+}
+
+var onTokenTransfer= function(error, log){
+  console.log("token transfer event:");
+   var newToken = {
+    "transactionHash": log.transactionHash,
+    "blockNumber": log.blockNumber,
+    "amount": log.args.tokens,
+    "to": log.args.to,
+    "from": log.args.from
+  }
+   new DAOTransferToken(newToken).save( function( err, token, count ){
+     if(err){
+      console.error(err);
+     }else{
+      console.log('DB successfully written for tx ' + log.transactionHash ); 
+     }
+   })
 }
 
 var bulkTimeUpdate = function(bulk, callback) {
@@ -223,13 +250,18 @@ setInterval(function() {
 
             var next = min + BATCH;
             if (next > max)
-              process.exit(9)
+              {
+                console.log("close:9");
+
+                return;//tt
+                // process.exit(9);
+              }
 
             patchBlocks(next, min);
           });
 }, 20000);
 
 
-// patchTimestamps(InternalTx.collection)
+patchTimestamps(InternalTx.collection)
 // populateCreatedTokens();
-// populateTransferTokens();
+populateTransferTokens();

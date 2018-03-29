@@ -3,8 +3,14 @@
         <div class="portlet-body">
 
             <table class="col-md-6 table">
-                <tr ng-repeat="t in tokens track by $index">
-                    <td> <a class="font-green" href="/token/{{t.address}}">{{t.name}} ({{t.symbol}})</a> </td>
+                    <thead>
+                            <tr>
+                                <th> TokenName </th>
+                                <th> Address </th>
+                            </tr>
+                        </thead>
+                <tr ng-repeat="t in contracts track by $index">
+                    <td> <a class="font-green" href="/token/{{t.address}}">{{t.contractName}} </a></td>
                     <td > <a href="/token/{{t.address}}">{{t.address}}</a> </td>
                 </tr>
             </table>

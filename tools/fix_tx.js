@@ -16,7 +16,7 @@ var getTx = function() {
     Block.find({}, "transactions timestamp").lean(true).exec(function(err, docs) {
         async.forEach(docs, function(doc, cb) {
             var bulkOps = [];
-          if (doc.transactions.length > 0) {
+          if (doc.transactions && doc.transactions.length > 0) {
             for (d in doc.transactions) {
                 var txData = doc.transactions[d];
                 txData.timestamp = doc.timestamp;

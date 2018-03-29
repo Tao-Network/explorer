@@ -10,12 +10,14 @@ var async = require('async');
 module.exports = function(app){
   var web3relay = require('./web3relay');
 
-  // var DAO = require('./dao');
-  // var Token = require('./token');
-
-  // var compile = require('./compiler');
-  // var fiat = require('./fiat');
-  // var stats = require('./stats');
+  //var DAO = require('./dao');
+  var Token = require('./token');
+  var tokenListData = require('./tokenListData');
+  var contractListData = require('./contractListData');
+  var transactionData = require('./transactionData');
+  var compile = require('./compiler');
+  var fiat = require('./fiat');
+  var stats = require('./stats');
 
   /* 
     Local DB: data request format
@@ -29,13 +31,16 @@ module.exports = function(app){
   app.post('/data', getData);
   app.get('/totaletz', getTotalEtz);
 
-  // app.post('/daorelay', DAO);
-  // app.post('/tokenrelay', Token);  
+  //app.post('/daorelay', DAO);
+  app.post('/tokenrelay', Token);  
+  app.post('/tokenListData', tokenListData); 
+  app.post('/contractListData', contractListData); 
+  app.post('/transactionRelay', transactionData); 
   app.post('/web3relay', web3relay.data);
-  // app.post('/compile', compile);
+  app.post('/compile', compile);
 
-  // app.post('/fiat', fiat);
-  // app.post('/stats', stats);
+  app.post('/fiat', fiat);
+  app.post('/stats', stats);
   
 
 }
@@ -54,9 +59,8 @@ var getAddr = function(req, res){
 
   addrFind.lean(true).sort('-blockNumber').skip(start).limit(limit)
           .exec("find", function (err, docs) {
-              if (docs){
+            if (docs)
               data.data = filters.filterTX(docs, addr);      
-              }
             else 
               data.data = [];
             res.write(JSON.stringify(data));

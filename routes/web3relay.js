@@ -18,7 +18,7 @@ var filterTrace = require('./filters').filterTrace;
 if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
-  web3 = new Web3(new Web3.providers.HttpProvider("http://rpc.etherzero.org:9646"));
+  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
 }
 
 if (web3.isConnected()) 

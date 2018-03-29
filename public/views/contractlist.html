@@ -1,0 +1,21 @@
+<div class="row ">
+    <div class="col-md-12 portlet light">
+        <div class="portlet-body">
+
+            <table class="col-md-6 table">
+                    <thead>
+                            <tr>
+                                <th> ContractName </th>
+                                <th> Is Token </th>
+                                <th> Address </th>
+                            </tr>
+                        </thead>
+                <tr ng-repeat="t in contracts track by $index">
+                    <td> <a class="font-green" href="/{{t.ERC==0?'addr':'token'}}/{{t.address}}">{{t.contractName}} </a></td>
+                    <td> {{t.ERC==0?'No':'Yes'}}</td>
+                    <td > <a href="/{{t.ERC==0?'addr':'token'}}/{{t.address}}">{{t.address}}</a> </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

@@ -4,9 +4,14 @@ angular.module('BlocksApp').controller('TokenListController', function($statePar
         App.initAjax();
     });
 
-    $http.get('/TOKENS.json')
-      .then(function(res){
-        $scope.tokens = res.data;
-      })
 
+      $http({
+        method: 'POST',
+        url: '/tokenListData',
+        data: {"ERC": 0}
+      }).success(function(repData) {
+        console.log("tokens:", repData);
+        $scope.contracts = repData;
+      });
+    
 })

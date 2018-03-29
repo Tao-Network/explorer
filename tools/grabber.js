@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require( '../db.js' );
 var etherUnits = require("../lib/etherUnits.js");
 var BigNumber = require('bignumber.js');
@@ -11,14 +9,12 @@ var Web3 = require('web3');
 var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
-
 var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
-        config.gethPort.toString()));
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config.gethPort.toString()));
 
-
-    if('listenOnly' in config && config.listenOnly === true) 
+    if('listenOnly' in config && config.listenOnly === true) {
         listenBlocks(config, web3);
+    }
     else
         setTimeout(function() {
             grabBlock(config, web3, config.blocks.pop());
@@ -29,6 +25,8 @@ var grabBlocks = function(config) {
 var listenBlocks = function(config, web3) {
     var newBlocks = web3.eth.filter("latest");
     newBlocks.watch(function (error, log) {
+        //console.log("watch log:", log);
+        // web3.personal.unlockAccount(web3.eth.accounts[0], "1");//ttt for testing
 
         if(error) {
             console.log('Error: ' + error);
@@ -82,7 +80,7 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
                     writeBlockToDB(config, blockData);
                 }
                 if (!('skipTransactions' in config && config.skipTransactions === true))
-                    writeTransactionsToDB(config, blockData);
+                    writeTransactionsToDB(config, blockData, web3.eth);
                 if('listenOnly' in config && config.listenOnly === true) 
                     return;
 
@@ -164,13 +162,24 @@ var checkBlockDBExistsThenWrite = function(config, blockData) {
     Break transactions out of blocks and write to DB
 **/
 
-var writeTransactionsToDB = function(config, blockData) {
+var writeTransactionsToDB = function(config, blockData, eth) {
     var bulkOps = [];
     if (blockData.transactions.length > 0) {
         for (d in blockData.transactions) {
             var txData = blockData.transactions[d];
+            if(txData.to == null){//contract create
+                console.log("contract create at tx:"+txData.hash);
+            }
             txData.timestamp = blockData.timestamp;
+            txData.gasPrice = etherUnits.toEther(new BigNumber(txData.gasPrice), 'ether');
             txData.value = etherUnits.toEther(new BigNumber(txData.value), 'wei');
+            //receipt
+            var receiptData = eth.getTransactionReceipt(txData.hash);
+            if(receiptData){
+                txData.gasUsed = receiptData.gasUsed;
+                txData.contractAddress = receiptData.contractAddress;
+            }
+            
             bulkOps.push(txData);
         }
         Transaction.collection.insert(bulkOps, function( err, tx ){
@@ -196,8 +205,8 @@ var writeTransactionsToDB = function(config, blockData) {
   Patch Missing Blocks
 */
 var patchBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
-        config.gethPort.toString()));
+    // var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + config.gethPort.toString()));
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config.gethPort.toString()));
 
     // number of blocks should equal difference in block numbers
     var firstBlock = 0;
@@ -240,43 +249,17 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 
 
 /** On Startup **/
-// geth --rpc --rpcaddr "localhost" --rpcport "8545"  --rpcapi "eth,net,web3"
+// geth --rpc --rpcaddr "localhost" --rpcport "9646"  --rpcapi "eth,net,web3"
 
-var config = {};
-
-try {
-    var configContents = fs.readFileSync('/data/explorer/tools/config.json');
-    config = JSON.parse(configContents);
-}
-catch (error) {
-    if (error.code === 'ENOENT') {
-        console.log('No config file found. Using default configuration (will ' + 
-            'download all blocks starting from latest)');
-    }
-    else {
-        throw error;
-        process.exit(1);
-    }
-}
-
-// set the default geth port if it's not provided
-if (!('gethPort' in config) || (typeof config.gethPort) !== 'number') {
-    config.gethPort = 9646; // default
-}
-
-// set the default output directory if it's not provided
-if (!('output' in config) || (typeof config.output) !== 'string') {
-    config.output = '.'; // default this directory
-}
-
-// set the default blocks if it's not provided
-if (!('blocks' in config) || !(Array.isArray(config.blocks))) {
-    config.blocks = [];
-    config.blocks.push({'start': 4936270, 'end': 'latest'});
-}
-
-console.log('Using configuration:');
-console.log(config);
+var config = {
+    "gethPort": 9646,
+    // "blocks": [ {"start": 0, "end": "latest"}],
+    "blocks": [ {"start": 4936270, "end": "latest"}],//ttt
+    "quiet": true,
+    "terminateAtExistingDB": false,
+    "listenOnly": true,
+    "out": "."
+};
 
 grabBlocks(config);
 // patchBlocks(config);

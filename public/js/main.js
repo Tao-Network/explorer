@@ -174,7 +174,7 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
         .state('contract', {
             url: "/contract/{addr}",
             templateUrl: "views/contract.html",
-            data: {pageTitle: 'Verify Contract'},
+            data: {pageTitle: 'Contract'},
             controller: "ContractController",
             resolve: {
                 deps: ['$ocLazyLoad', function($ocLazyLoad) {
@@ -183,6 +183,24 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
                         insertBefore: '#ng_load_plugins_before', 
                         files: [
                              '/js/controllers/ContractController.js',
+                             '/js/custom.js'
+                         ]
+                     });
+                }]
+            }
+        })
+        .state('verifycontract', {
+            url: "/verifycontract/{addr}",
+            templateUrl: "views/contractVerify.html",
+            data: {pageTitle: 'Verify Contract'},
+            controller: "ContractVerifyController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/ContractVerifyController.js',
                              '/js/custom.js'
                          ]
                      });
@@ -226,7 +244,7 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
             }
         })
         .state('tokenlist', {
-            url: "/token",
+            url: "/tokenlist",
             templateUrl: "views/tokenlist.html",
             data: {pageTitle: 'Tokens'},
             controller: "TokenListController",
@@ -237,6 +255,23 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
                         insertBefore: '#ng_load_plugins_before', 
                         files: [
                              '/js/controllers/TokenListController.js'
+                        ]
+                    });
+                }]
+            }
+        })
+        .state('contractlist', {
+            url: "/contractlist",
+            templateUrl: "views/contractlist.html",
+            data: {pageTitle: 'contractlist'},
+            controller: "ContractListController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/ContractListController.js'
                         ]
                     });
                 }]

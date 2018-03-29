@@ -6,7 +6,8 @@ require( '../db-internal.js' );
 
 var http = require('http');
 var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+var web3 = new Web3(new Web3.providers.HttpProvider("http://rpc.etherzero.org:9646"));
+// var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
 
 var mongoose = require( 'mongoose' );
 var InternalTx     = mongoose.model( 'InternalTransaction' );
@@ -24,6 +25,7 @@ function grabInternalTxs(batchNum, batchSize) {
     "id":' + batchNum + '}';
 
   var post_options = {
+      // host: 'rpc.etherzero.org',
       host: 'localhost',
       port: '9646',
       path: '/',
@@ -129,7 +131,7 @@ var getLatestBlocks = function(latest, start) {
 }
 
 
-mongoose.connect( 'mongodb://localhost/blockDB' );
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
 mongoose.set('debug', true);
 
 var minutes = 5;
@@ -139,9 +141,14 @@ setInterval(function() {
   try {
       InternalTx.findOne({}, "blockNumber").lean(true).sort("-blockNumber")
           .exec(function(err, doc) {
-            var last = doc.blockNumber;
-            var latest = web3.eth.blockNumber;
-            getLatestBlocks(latest, last);
+            if(doc){
+              var last = doc.blockNumber;
+              var latest = web3.eth.blockNumber;
+              getLatestBlocks(latest, last);
+            }else{
+              console.log("[err:] doc is null");
+            }
+            
           });
   } catch (e) {
     console.error(e);

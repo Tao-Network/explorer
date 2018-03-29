@@ -5,20 +5,20 @@
         <div class="row">
             <div class="col-md-6 center">
               <div >
-                <span class="eth-stat-title">
-                  {{ token.balance | number: 10 }} </span><br>
-                <span class="eth-stat-text">
-                  {{ token.name }} Address Balance (ETC)
-                  </span><br> 
+                <!--span class="eth-stat-title"> {{ token.balance | number: 10 }} </span> <br-->
+                <span class="eth-stat-text">token name</span> {{ token.name }}  ({{ token.symbol }})<br> 
                   <div class="margin-top-20">
-                  {{ token.total_supply | number:1 }} <span class="eth-stat-text">Total {{ token.symbol }} Tokens</span>
-                  </div>
-                  {{ token.total_holders | number:1 }} <div class="margin-top-20">
-                   <span class="eth-stat-text">Token Holders</span>
+                    <span class="eth-stat-text">Total {{ token.symbol }} Tokens</span> {{ token.total_supply | number:1 }}
                   </div>
                   <div class="margin-top-20">
-                  {{ token.count }} <span class="eth-stat-text">Transactions</span>
+                    <span class="eth-stat-text"> decimals</span> {{ token.decimals }}
                   </div>
+                  <!--div class="margin-top-20">
+                    {{ token.tokenHolders | number:1 }} <span class="eth-stat-text">Token Holders</span>
+                  </div-->
+                  <!--div class="margin-top-20">
+                  <span class="eth-stat-text">Transactions</span> {{ token.count }}
+                  </div-->
               </div>
             </div>
 
@@ -26,20 +26,20 @@
                 <div class="portlet">
                   <div class="portlet-body">
 
-                    <span class='btn blue-madison' ng-show="!isFollowing(token.ash)" ng-click="follow(token.ash)">WATCH <i class="fa fa-rss "></i></span>
+                    <!--span class='btn blue-madison' ng-show="!isFollowing(token.ash)" ng-click="follow(token.ash)">WATCH <i class="fa fa-rss "></i></span>
                     <span class='btn grey'  ng-show="isFollowing(token.ash)" ng-click="unFollow(token.ash)">WATCHING <i class="fa fa-check "></i></span>
                     <div class="margin-top-20">
                         {{ token.follow_count }}0 
                         <span class="eth-stat-text">WATCHING</span>
-                    </div>
+                    </div-->
                     <div class="margin-top-20">
-                       <span class="eth-stat-text">Contract Creator</span><br>
-                       <a href="/addr/{{token.creator}}">{{token.creator.substr(0,24)}}...</a> at txn 
-                       <a href="/tx/{{token.transaction}}">{{token.transaction.substr(0,24)}}...</a>
+                       <span class="eth-stat-text">ERC20 Contract</span><br>
+                       <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
+                       <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
                     <div class="margin-top-20">
                        <span class="eth-stat-text">Token Address</span><br>
-                       <a href="/addr/{{token.address}}">{{token.address}}</a>
+                       <a href="/addr/{{token.address}}">{{ token.address }}</a>
                     </div>
                 </div>
               </div>
@@ -59,10 +59,10 @@
               <li ng-class="{active: activeTab == 'tab_token_1' || !activeTab}">
                   <a href="#tab_token_1" data-toggle="tab" aria-expanded="true"> Get Balance </a>
               </li>
-              <li ng-class="{active: activeTab == 'tab_token_2'}">
+              <li ng-class="{active: activeTab == 'tab_token_2'}" ng-click="transferTokens(0)">
                   <a href="#tab_token_2" data-toggle="tab" aria-expanded="false"> Token Transfers </a>
               </li>
-              <li ng-class="{active: activeTab == 'tab_token_3'}">
+              <li ng-class="{active: activeTab == 'tab_token_3'}"  ng-click="contractTransaction()">
                   <a href="#tab_token_3" data-toggle="tab" aria-expanded="true"> Contract Transactions </a>
               </li>              
               <li ng-class="{active: activeTab == 'tab_token_4'}">
@@ -91,10 +91,44 @@
                 </div>
             </div><!-- end get Token Balance Tab -->
             <div class="tab-pane" id="tab_token_2" ng-class="{active: activeTab == 'tab_token_2'}">
-              <transfer-tokens></transfer-tokens>
+              <transfer-tokens>
+                <div class="table-scrollable">
+                  <table class="table table-condensed">
+                      <thead>
+                          <tr>
+                              <th> TxHash </th>
+                              <th> Age </th>
+                              <th> Block </th>
+                              <th> From </th>
+                              <th> To </th>
+                              <th style="text-align:right"> Amount </th>
+                              <th></th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr ng-repeat="t in transfer_tokens track by $index">
+                              <td class="truncate-txhash"> <a href="/tx/{{t.transactionHash}}">{{t.transactionHash}}</a> </td>
+                              <td>{{t.timestamp | timeDuration}} ago</td>
+                              <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
+                              <td class="truncate-addrhash"> <a href="/addr/{{t.from}}">{{t.from}}</a> </td>
+                              <td class="truncate-addrhash"> <a href="/addr/{{t.to}}">{{t.to}}</a> </td>
+                              <td style="text-align:right"> {{t.amount | number}} </td>
+                              <td style="text-align:center"><span class="label label-sm label-info"> Transfer </span></td>
+                          </tr>
+                      </tbody>
+                  </table>
+                  <ul class="pager">
+                      <li class="previous">
+                          <a ng-click="transferTokens(transfer_tokens[0]._id)"> ← Newer </a>
+                      </li>
+                      <li class="next">
+                          <a ng-click="transferTokens(transfer_tokens[transfer_tokens.length-1]._id)"> Older → </a>
+                      </li>
+                  </ul>
+                </div>
+              </transfer-tokens>
             </div><!-- end Internal txs Tab -->
             <div class="tab-pane table-container" ng-class="{active: activeTab == 'tab_token_3'}" id="tab_token_3"><!-- Datatable tab -->
-
               <table class="table table-striped table-hover" id="table_txs" style="table-layout:fixed;width: 98% !important;">
                   <thead>
                       <tr role="row" class="heading">
@@ -107,7 +141,9 @@
                           <th width="12%"> Age </th>
                       </tr>
                   </thead>
-                  <tbody></tbody>
+                  <tbody ng-repeat="t in contractTxList">
+                    <tr><td>{{t.hash}}</td><td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp}}</td></tr>                   
+                  </tbody>
               </table>
             </div><!-- End: Datatable tab -->
 

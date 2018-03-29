@@ -11,7 +11,7 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
     //fetch web3 stuff
     $http({
       method: 'POST',
-      url: '/web3relay',
+      url: '/transactionRelay',
       data: {"tx": $scope.hash}
     }).success(function(data) {
       $scope.tx = data;
