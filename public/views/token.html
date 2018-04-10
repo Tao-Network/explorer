@@ -4,42 +4,63 @@
       <div class="portlet-body">
         <div class="row">
             <div class="col-md-6 center">
-              <div >
-                <!--span class="eth-stat-title"> {{ token.balance | number: 10 }} </span> <br-->
-                <span class="eth-stat-text">token name</span> {{ token.name }}  ({{ token.symbol }})<br> 
-                  <div class="margin-top-20">
-                    <span class="eth-stat-text">Total {{ token.symbol }} Tokens</span> {{ token.total_supply | number:1 }}
-                  </div>
-                  <div class="margin-top-20">
-                    <span class="eth-stat-text"> decimals</span> {{ token.decimals }}
-                  </div>
+                  <div ng-show="acc" class="margin-top-20"><span class="eth-stat-text"> Token Holder:</span> <a href="/addr/{{acc}}">{{acc}}</a></div>
+                  <!--span class="eth-stat-title"> {{ token.balance | number: 10 }} </span> <br-->
+                  <div class="margin-top-20"><span class="eth-stat-text">token name</span> {{ token.name }}  ({{ token.symbol }})</div>
+                  <div ng-show="!acc" class="margin-top-20"><span class="eth-stat-text">Total {{ token.symbol }} Tokens</span> {{ token.totalSupply | number:1 }}</div>
+                  <div class="margin-top-20"><span class="eth-stat-text"> decimals</span> {{ token.decimals }}</div>
+                  
                   <!--div class="margin-top-20">
                     {{ token.tokenHolders | number:1 }} <span class="eth-stat-text">Token Holders</span>
                   </div-->
                   <!--div class="margin-top-20">
                   <span class="eth-stat-text">Transactions</span> {{ token.count }}
                   </div-->
-              </div>
+                  
+                  <div class="margin-top-20" ng-show="!acc">
+                    <span class="eth-stat-text">Get {{ token.name }}  Balance ↓</span>
+                    <div class="row">
+                    <form class="col-md-10 center" name="form.tokens">
+                        <span class="help-block"><b>Enter Your Address </b></span>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="addrInput" placeholder="{{token.address}}" ng-model="form.addrInput" ng-keyup="$event.keyCode == 13 ? getBalance(form.addrInput) : null">
+                            <span class="input-group-btn">
+                                <button class="btn blue-madison" type="button" ng-click="getBalance(form.addrInput)">Go!</button>
+                            </span>
+                        </div>
+                        <span class="help-block font-red-mint">{{errors.address}}</span>
+                    </form>
+                    </div>
+                    <div class="row" ng-show="showTokens">
+                    <div class="col-md-10">
+                        <h4>You have <span class="eth-stat-title font-blue-madison">0{{userTokens | number}}</span> {{ token.symbol }}  tokens.</h4>
+                    </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-6 center">
                 <div class="portlet">
                   <div class="portlet-body">
-
+                    <div ng-show="acc" class="margin-top-20"><span class="eth-stat-text"> Token Balance:</span> {{token.tokenNum}}</div>
                     <!--span class='btn blue-madison' ng-show="!isFollowing(token.ash)" ng-click="follow(token.ash)">WATCH <i class="fa fa-rss "></i></span>
                     <span class='btn grey'  ng-show="isFollowing(token.ash)" ng-click="unFollow(token.ash)">WATCHING <i class="fa fa-check "></i></span>
                     <div class="margin-top-20">
                         {{ token.follow_count }}0 
                         <span class="eth-stat-text">WATCHING</span>
                     </div-->
-                    <div class="margin-top-20">
-                       <span class="eth-stat-text">ERC20 Contract</span><br>
+                    <div ng-show="!acc" class="margin-top-20">
+                       <span class="eth-stat-text">Token creator</span><br>
                        <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
                        <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
-                    <div class="margin-top-20">
+                    <div ng-show="acc" class="margin-top-20">
                        <span class="eth-stat-text">Token Address</span><br>
-                       <a href="/addr/{{token.address}}">{{ token.address }}</a>
+                       <a href="/token/{{token.address}}">{{token.address }}</a>
+                    </div>
+                    <div ng-show="!acc" class="margin-top-20">
+                        <span class="eth-stat-text">transaction Address</span><br>
+                        <a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,41) }}...</a>
                     </div>
                 </div>
               </div>
@@ -56,10 +77,10 @@
        
        <div class="tabbable-line">
           <ul class="nav nav-tabs ">
-              <li ng-class="{active: activeTab == 'tab_token_1' || !activeTab}">
+              <!--li ng-class="{active: activeTab == 'tab_token_1' || !activeTab}">
                   <a href="#tab_token_1" data-toggle="tab" aria-expanded="true"> Get Balance </a>
-              </li>
-              <li ng-class="{active: activeTab == 'tab_token_2'}" ng-click="transferTokens(0)">
+              </li-->
+              <li ng-class="{active: true}" ng-click="transferTokens(0)"><!--li ng-class="{active: activeTab == 'tab_token_2'}" ng-click="transferTokens(0)"-->
                   <a href="#tab_token_2" data-toggle="tab" aria-expanded="false"> Token Transfers </a>
               </li>
               <li ng-class="{active: activeTab == 'tab_token_3'}"  ng-click="contractTransaction()">
@@ -70,9 +91,9 @@
               </li>              
           </ul>
           <div class="tab-content">
-            <div class="tab-pane" ng-class="{active: activeTab == 'tab_token_1' || !activeTab}" id="tab_token_1">
+            <!--div class="tab-pane" ng-class="{active: activeTab == 'tab_token_1' || !activeTab}" id="tab_token_1">
                 <h4>Get {{ token.name }}  <span ng-show="!token.name">Token</span> Balance</h4>
-                <div class="row"><!-- get my balance -->
+                <div class="row">
                   <form class="col-md-10 center" name="form.tokens">
                     <span class="help-block"><b>Enter Your Address </b></span>
                     <div class="input-group">
@@ -83,14 +104,14 @@
                     </div>
                      <span class="help-block font-red-mint">{{errors.address}}</span>
                   </form>
-                </div><!--end row-->
-                <div class="row" ng-show="showTokens"><!-- balance results -->
+                </div>
+                <div class="row" ng-show="showTokens">
                   <div class="col-md-10">
                     <h4>You have <span class="eth-stat-title font-blue-madison">0{{userTokens | number}}</span> {{ token.symbol }}  tokens.</h4>
                   </div>
                 </div>
-            </div><!-- end get Token Balance Tab -->
-            <div class="tab-pane" id="tab_token_2" ng-class="{active: activeTab == 'tab_token_2'}">
+            </div--><!-- end get Token Balance Tab -->
+            <div class="tab-pane" id="tab_token_2" ng-class="{active:true}"><!--div class="tab-pane" id="tab_token_2" ng-class="{active: activeTab == 'tab_token_2'}"-->
               <transfer-tokens>
                 <div class="table-scrollable">
                   <table class="table table-condensed">
@@ -107,12 +128,14 @@
                       </thead>
                       <tbody>
                           <tr ng-repeat="t in transfer_tokens track by $index">
-                              <td class="truncate-txhash"> <a href="/tx/{{t.transactionHash}}">{{t.transactionHash}}</a> </td>
+                              <td class="truncate-txhash"> <a href="/tx/{{t.transactionHash}}?isTransfer=true">{{t.transactionHash}}</a> </td>
                               <td>{{t.timestamp | timeDuration}} ago</td>
                               <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
-                              <td class="truncate-addrhash"> <a href="/addr/{{t.from}}">{{t.from}}</a> </td>
-                              <td class="truncate-addrhash"> <a href="/addr/{{t.to}}">{{t.to}}</a> </td>
-                              <td style="text-align:right"> {{t.amount | number}} </td>
+                              <td ng-show="acc==t.from" class="truncate-addrhash">{{t.from}} </td>
+                              <td ng-show="acc!=t.from" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}?acc={{t.from}}">{{t.from}}</a> </td>
+                              <td ng-show="acc==t.to" class="truncate-addrhash"> {{t.to}} </td>
+                              <td ng-show="acc!=t.to" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}?acc={{t.to}}">{{t.to}}</a> </td>
+                              <td style="text-align:right"> {{t.amount}} </td>
                               <td style="text-align:center"><span class="label label-sm label-info"> Transfer </span></td>
                           </tr>
                       </tbody>
@@ -142,7 +165,7 @@
                       </tr>
                   </thead>
                   <tbody ng-repeat="t in contractTxList">
-                    <tr><td>{{t.hash}}</td><td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp}}</td></tr>                   
+                    <tr><td>{{t.hash}}</td><td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp | timeDuration}}</td></tr>                   
                   </tbody>
               </table>
             </div><!-- End: Datatable tab -->

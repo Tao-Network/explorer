@@ -18,7 +18,8 @@
           <tr ng-show="tx.creates"><td width="25%">creates</td><td><a href="/addr/{{tx.creates}}">{{tx.creates}}</a></td></tr>  
           <tr ng-show="tx.contractName"><td width="25%">{{tx.contractLable}}</td><td><a href="/{{tx.contractLink}}">{{tx.contractName}}</a></td></tr>  
           <tr ng-show="tx.needVerify"><td width="25%">verify</td><td><a href="/verifycontract/{{tx.contractAddr}}">click here to verify your contract</a></td></tr> 
-          <tr ng-show="tx.ERC"><td width="25%">ERC</td><td>{{tx.ERC}}</td></tr> 
+          <!--tr ng-show="tx.ERC"><td width="25%">ERC</td><td>{{tx.ERC}}</td></tr--> 
+          <tr ng-show="tx.isTransfer"><td width="25%">Token Transfer:</td><td>{{tx.tokenNum}} <a href="/token/{{tx.contractAddr}}">{{tx.contractName}}</a>   from <a href="/addr/{{tx.from}}">{{tx.from.substr(0,20)}}...</a>  to <a href="/addr/{{tx.to}}">{{tx.to.substr(0,20)}}...</a></td></tr>
           <tr ><td width="25%">value</td><td>{{tx.value}} ETZ</td></tr>
           <tr ><td width="25%">gas Provided</td><td>{{tx.gas}}</td></tr>
           <tr ><td width="25%">gasPrice</td><td>{{tx.gasPrice}}</td></tr>

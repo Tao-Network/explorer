@@ -29,6 +29,11 @@ var Contract = new Schema(
     "ERC":Number,//0:normal contract 2:ERC20, 3:ERC223
     "creationTransaction": String,
     "contractName": String,
+    "symbol": String,
+    "owner": String,
+    "decimals": Number,
+    "totalSupply": Number,
+    "balance": Number,
     "compilerVersion": String,
     "optimization": Boolean,
     "sourceCode": String,

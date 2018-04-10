@@ -26,7 +26,6 @@ var listenBlocks = function(config, web3) {
     var newBlocks = web3.eth.filter("latest");
     newBlocks.watch(function (error, log) {
         //console.log("watch log:", log);
-        // web3.personal.unlockAccount(web3.eth.accounts[0], "1");//ttt for testing
 
         if(error) {
             console.log('Error: ' + error);

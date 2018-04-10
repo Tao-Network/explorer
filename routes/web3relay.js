@@ -68,7 +68,7 @@ exports.data = function(req, res){
       }
       res.end();
     });
-  } else if ("addr_trace" in req.body) {
+  } else if ("addr_trace" in req.body) {//internalTX
     var addr = req.body.addr_trace.toLowerCase();
     // need to filter both to and from
     // from block to end block, paging "toAddress":[addr], 
@@ -83,13 +83,33 @@ exports.data = function(req, res){
         res.write(JSON.stringify(filterTrace(tx)));
       }
       res.end();
-    }) 
+    })
   } else if ("addr" in req.body) {
     var addr = req.body.addr.toLowerCase();
     var options = req.body.options;
 
     var addrData = {};
-
+    if (options.indexOf("bytecode") > -1) {
+      try {
+         addrData["bytecode"] = web3.eth.getCode(addr);
+         if (addrData["bytecode"].length > 2){
+          addrData["isContract"] = true;
+          // //redirect to /tokenAddr
+          // res.redirect("https://www.baidu.com");
+          // // res.writeHead(302, {
+          // //   'Location': '/token/'+addr
+          // //   //add other headers here...
+          // // });
+          // res.end();
+          // return;
+         }
+         else
+            addrData["isContract"] = false;
+      } catch (err) {
+        console.error("AddrWeb3 error :" + err);
+        addrData = {"error": true};
+      }
+    }
     if (options.indexOf("balance") > -1) {
       try {
         addrData["balance"] = web3.eth.getBalance(addr);  
@@ -107,18 +127,7 @@ exports.data = function(req, res){
         addrData = {"error": true};
       }
     }
-    if (options.indexOf("bytecode") > -1) {
-      try {
-         addrData["bytecode"] = web3.eth.getCode(addr);
-         if (addrData["bytecode"].length > 2) 
-            addrData["isContract"] = true;
-         else
-            addrData["isContract"] = false;
-      } catch (err) {
-        console.error("AddrWeb3 error :" + err);
-        addrData = {"error": true};
-      }
-    }
+    
    
     res.write(JSON.stringify(addrData));
     res.end();
@@ -144,5 +153,7 @@ exports.data = function(req, res){
 
 };
 
+exports.web3 = web3;
 exports.eth = web3.eth;
+
   

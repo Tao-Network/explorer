@@ -12,16 +12,10 @@ exports.Init = function(ethInstance){
   eth = ethInstance;
 }
 
+
 //get TokenTransfer information from blockchain
 exports.PatchTransferTokens = function(contractData, listenOnComplete){
-  if(typeof(contractData.abi) == "string"){
-    contractData.abi = JSON.parse(contractData.abi);
-  }
-  var tokenContract = eth.contract(contractData.abi);
-  var TokenInstance = tokenContract.at(contractData.address);
-  
-
-  var event = TokenInstance.Transfer;
+  var event = exports.GetTransferEvent(contractData.abi, contractData.address);
   var transferEventFilter = event({}, {fromBlock: 0, toBlock: "latest"});
   var endBlockNum = 0;
   transferEventFilter.get( function(err, log) {
@@ -68,7 +62,7 @@ exports.PatchTransferTokens = function(contractData, listenOnComplete){
         //finish history TokenTransfer
 
         if(listenOnComplete){
-          exports.ListenTransferTokens(event);
+          exports.ListenTransferTokens(event, eth.blockNumber+1);
         }
       }
   });
@@ -78,9 +72,18 @@ exports.PatchTransferTokens = function(contractData, listenOnComplete){
 
 
 //listen new TransferTokens event
-exports.ListenTransferTokens=  function(transferEvent){
-    var transferEventWatchFilter = transferEvent({}, {fromBlock: eth.blockNumber, toBlock: "latest"});
+exports.ListenTransferTokens=  function(transferEvent, fromBlockNum=eth.blockNumber){
+  var transferEventWatchFilter = transferEvent({}, {fromBlock: fromBlockNum, toBlock: "latest"});
     transferEventWatchFilter.watch(onTokenTransfer);
+}
+
+exports.GetTransferEvent=function(abiObj, contractAddress){
+  if(typeof(abiObj) == "string"){
+    abiObj = JSON.parse(abiObj);
+  }
+  var tokenContract = eth.contract(abiObj);
+  var TokenInstance = tokenContract.at(contractAddress);
+  return TokenInstance.Transfer;
 }
 
 var onTokenTransfer= function(error, log){
@@ -93,6 +96,8 @@ var onTokenTransfer= function(error, log){
     tokenTransferObj.contractAdd= log.address;
     tokenTransferObj.to= log.args.to;
     tokenTransferObj.from= log.args.from;
+    var block = eth.getBlock(log.blockNumber);
+    tokenTransferObj.timestamp = block.timestamp;//tt
     new db.TokenTransfer(tokenTransferObj).save( function( err, token, count ){
       if(err){
         console.error(err);

@@ -7,17 +7,39 @@
         <div class="portlet-body">
           <div class="row">
               <div class="col-md-6 center">
-                <div >
-                  <span class="eth-stat-title">
-                    {{ addr.balance | number: 10 }} </span><br>
-                  <span class="eth-stat-text"> ETZ Balance </span><br> 
-                    <div class="margin-top-20">
-                    {{ addr.count }} <span class="eth-stat-text">Transactions</span>
+                  <div ><span class="eth-stat-text"> ETZ Balance </span> {{ addr.balance | number: 10 }} <br> </div>
+                  <div ng-show="addr.isContract">
+                    <div class="margin-top-20"><span class="eth-stat-text">Transactions</span> {{ token.count }}</div>
+                    <div class="margin-top-20" ng-show="token.isVerified"><span class="eth-stat-text">Token name </span> <a href="/token/{{token.address}}">{{token.name}}</a></div>
+                    <div class="margin-top-20" ng-show="token.isVerified"><span class="eth-stat-text">Token verified √</span></div>
+                    <div class="margin-top-20" ng-show="!token.isVerified"><span class="eth-stat-text">not verified  <a href="/verifycontract/{{token.address}}">[go for verifying]</a></div>
+                  </div>
+              </div>
+
+              <div class="col-md-6 center" ng-show="addr.isContract">
+                <div class="portlet">
+                  <div class="portlet-body">
+                    <!--span class='btn blue-madison' ng-show="!isFollowing(token.ash)" ng-click="follow(token.ash)">WATCH <i class="fa fa-rss "></i></span>
+                    <span class='btn grey'  ng-show="isFollowing(token.ash)" ng-click="unFollow(token.ash)">WATCHING <i class="fa fa-check "></i></span>
+                    <div class="margin-top-20"><span class="eth-stat-text">WATCHING</span> {{ token.follow_count }}</div-->
+                    <div>
+                       <span class="eth-stat-text">Token creator</span><br>
+                       <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
+                       <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
+                    <div class="margin-top-20"><span class="eth-stat-text">Token Address</span><br>
+                        <a href="/token/{{token.address}}">{{ token.address }}</a>
+                     </div>
+                    <div class="margin-top-20"><span class="eth-stat-text">transaction Address</span><br>
+                        <a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,41) }}...</a></div>
+                  </div>
                 </div>
               </div>
         </div><!--end row-->
       </div><!--end portlet-body-->
+
+      
+
     </div><!--end portlet-->
   
     <!-- Begin: Transaction Datatable -->
@@ -30,10 +52,10 @@
                 </li>
                 <!--li  ng-class="{active: activeTab == 'tab_addr_2'}" ng-show="addr.isContract">
                     <a href="#tab_addr_2" data-toggle="tab" aria-expanded="false"> Internal Transactions </a>
-                </li-->
+                </li>
                 <li class="" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_3'}">
                     <a href="#tab_addr_3" data-toggle="tab" aria-expanded="false"> Contract Source </a>
-                </li>
+                </li-->
             </ul>
             <div class="tab-content">
               <div class="tab-pane table-container" ng-class="{active: activeTab == 'tab_addr_1' || !activeTab}" id="tab_addr_1"><!-- Datatable tab -->

@@ -21,7 +21,15 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       fetchTxs($scope.addr.count);
       if (data.isContract) {
         $rootScope.$state.current.data["pageTitle"] = "Contract Address";
-        fetchInternalTxs();
+        //fetchInternalTxs();
+        $http({
+          method: 'POST',
+          url: '/tokenrelay',
+          data: {"action": "info", "address": $scope.addrHash}
+        }).success(function(tokenData) {
+          $scope.token = tokenData;
+          $scope.token.address = $scope.addrHash;
+        });
       }
     });
 

@@ -8,9 +8,10 @@ module.exports = function(req, res){
       //console.log("respone tokenlist");
       var mongoose = require( 'mongoose' );
       var Transaction = mongoose.model('Transaction');
-      TransactionFind = Transaction.find({hash:req.body.tx}).lean(true);
-      TransactionFind.exec(function (err, docs) {
-        if(err || !docs || docs.length==0)//if no result in db , get from web3
+      var isTransfer = req.body.isTransfer;
+      TransactionFind = Transaction.findOne({hash:req.body.tx}).lean(true);
+      TransactionFind.exec(function (err, doc) {
+        if(err || !doc)//if no result in db , get from web3
         {
           require('./web3relay').data(req, res);
           return;
@@ -20,17 +21,25 @@ module.exports = function(req, res){
         var isContract = false;
         
         //is token and verified
-        var contractAddr = docs[0].to;
-        if(!docs[0].to){
-          contractAddr = docs[0].contractAddress;
+        var contractAddr = doc.to;
+        if(!doc.to){
+          contractAddr = doc.contractAddress;
         }
-        docs[0].contractAddr = contractAddr;
+        doc.contractAddr = contractAddr;
         var contractLable="";
         var contractName="";
         var contractLink = "";
 
-        if(docs[0].input && docs[0].input.length>2){//contract token
+        if(doc.input && doc.input.length>2){//contract token
           isContract = true;
+          if(isTransfer && doc.input.length>=138){
+            doc.to = "0x"+doc.input.substr(34,40);
+            var tokenNum = doc.input.substr(74,64);
+            var web3 = require('./web3relay');
+            tokenNum = web3.web3.toDecimal("0x"+tokenNum);
+            doc.tokenNum = tokenNum;
+            doc.isTransfer=true;
+          }
           var Contract = mongoose.model('Contract');
           ContractFind = Contract.find({address:contractAddr}).lean(true);
           ContractFind.exec(function (contractErr, result) {
@@ -43,15 +52,15 @@ module.exports = function(req, res){
                 isToken = true;
                 contractLink = "token/"+contractAddr;
                 if(result[0].ERC == 2){
-                  docs[0].ERC = "ERC20";
+                  doc.ERC = "ERC20";
                 }else if(result[0].ERC == 3){
-                  docs[0].ERC = "ERC223";
+                  doc.ERC = "ERC223";
                 }else{
-                  docs[0].ERC = "ERC";
+                  doc.ERC = "ERC";
                 }
               } 
               contractName = result[0].contractName;  
-              if(!docs[0].to){//contract token creation
+              if(!doc.to){//contract token creation
                 if(isToken)
                   contractLable = "token creation";
                 else
@@ -67,21 +76,21 @@ module.exports = function(req, res){
               contractLable = "contract";//need verify
               contractName = contractAddr;
               contractLink = "addr/"+contractAddr;
-              docs[0].needVerify = true;
+              doc.needVerify = true;
             }
-            docs[0].contractName = contractName;
-            docs[0].contractLable = contractLable;
-            docs[0].contractLink = contractLink;
+            doc.contractName = contractName;
+            doc.contractLable = contractLable;
+            doc.contractLink = contractLink;
             
-            respData = JSON.stringify(docs[0]);
+            respData = JSON.stringify(doc);
             res.write(respData);
             res.end();
           });
         }else{//normal transaction
-          docs[0].contractName = contractName;
-          docs[0].contractLable = contractLable;
-          docs[0].contractLink = contractLink;
-          respData = JSON.stringify(docs[0]);
+          doc.contractName = contractName;
+          doc.contractLable = contractLable;
+          doc.contractLink = contractLink;
+          respData = JSON.stringify(doc);
           res.write(respData);
           res.end();
         }

@@ -2,6 +2,7 @@ var mongoose = require( 'mongoose' );
 
 var Block     = mongoose.model( 'Block' );
 var Transaction = mongoose.model( 'Transaction' );
+var Contract = mongoose.model('Contract');
 var filters = require('./filters')
 
 
@@ -197,3 +198,18 @@ const DATA_ACTIONS = {
   "latest_txs": sendTxs
 }
 
+//listen every token in db
+var eth = require('./web3relay').eth;
+var TokenTransferGrabber = require('./grabTokenTransfer');
+TokenTransferGrabber.Init(eth);
+var ContractFind = Contract.find({ERC:{$gt:0}}).lean(true);
+var transforEvent;
+ContractFind.exec(function(err, doc){
+  if(doc){
+    for(var i=0; i<doc.length; i++){
+      transforEvent = TokenTransferGrabber.GetTransferEvent(doc[i].abi, doc[i].address)
+      TokenTransferGrabber.ListenTransferTokens(transforEvent);
+    }
+    
+  }
+})

@@ -1,18 +1,4 @@
-pragma solidity ^0.4.18;
-
-// ----------------------------------------------------------------------------
-// 'FIXED' 'Example Fixed Supply Token' token contract
-//
-// Symbol      : FIXED
-// Name        : Example Fixed Supply Token
-// Total supply: 1,000,000.000000000000000000
-// Decimals    : 18
-//
-// Enjoy.
-//
-// (c) BokkyPooBah / Bok Consulting Pty Ltd 2017. The MIT Licence.
-// ----------------------------------------------------------------------------
-
+pragma solidity ^0.4.0;
 
 // ----------------------------------------------------------------------------
 // Safe maths
@@ -117,9 +103,10 @@ contract ZeroToken is ERC20Interface, Owned {
         symbol = "ZT";
         name = "ZeroToken";
         decimals = 18;
-        _totalSupply = 1000000 * 10**uint(decimals);
+        _totalSupply = 1000000000000*10**decimals;
         balances[owner] = _totalSupply;
         Transfer(address(0), owner, _totalSupply);
+        
     }
 
 
@@ -127,7 +114,7 @@ contract ZeroToken is ERC20Interface, Owned {
     // Total supply
     // ------------------------------------------------------------------------
     function totalSupply() public constant returns (uint) {
-        return _totalSupply  - balances[address(0)];
+        return _totalSupply - balances[address(0)];
     }
 
 
@@ -145,10 +132,14 @@ contract ZeroToken is ERC20Interface, Owned {
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
     function transfer(address to, uint tokens) public returns (bool success) {
-        balances[msg.sender] = balances[msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
-        Transfer(msg.sender, to, tokens);
-        return true;
+        if (balances[msg.sender] >= tokens && tokens > 0) {//应该判断余额是否足够，不够则throw
+              balances[msg.sender] -= tokens;
+              balances[to] += tokens;
+              Transfer(msg.sender, to, tokens);
+              return true;
+          } else {
+              return false;
+          }
     }
 
 
@@ -177,11 +168,16 @@ contract ZeroToken is ERC20Interface, Owned {
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-        balances[from] = balances[from].sub(tokens);
-        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
-        Transfer(from, to, tokens);
-        return true;
+        if (balances[from] >= tokens && allowed[from][msg.sender] >= tokens && tokens > 0) {
+            balances[from] = balances[from].sub(tokens);
+            allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
+            balances[to] = balances[to].add(tokens);
+            Transfer(from, to, tokens);
+            return true;
+        } else {
+            return false;
+        }
+        
     }
 
 
