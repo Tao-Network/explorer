@@ -86,7 +86,7 @@ module.exports = function(req, res){
             "transaction": dbToken.creationTransaction,
             "creator": dbToken.owner,
             "decimals": dbToken.decimals,
-            "isVerified":true
+            "isVerified":dbToken.source!=null
           }
           if(fromAccount){
             var eth = require('./web3relay').eth;

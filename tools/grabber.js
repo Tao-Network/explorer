@@ -5,13 +5,38 @@ var BigNumber = require('bignumber.js');
 var fs = require('fs');
 
 var Web3 = require('web3');
-
+var web3;
+var TokenTransferGrabber = require('./grabTokenTransfer');
 var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
-var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config.gethPort.toString()));
+var Contract     = mongoose.model( 'Contract' );
+const ERC20ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"acceptOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"},{"name":"data","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"newOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferAnyERC20Token","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"tokenOwner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Approval","type":"event"}];
+var ContractStruct;
 
+//listen every history token in db
+var listenHistoryToken = function(){
+    // var eth = require('./web3relay').eth;
+    // var TokenTransferGrabber = require('./grabTokenTransfer');
+    // TokenTransferGrabber.Init(eth);
+    var ContractFind = Contract.find({ERC:{$gt:0}}).lean(true);
+    var transforEvent;
+    ContractFind.exec(function(err, doc){
+      if(doc){
+        for(var i=0; i<doc.length; i++){
+          //transforEvent = TokenTransferGrabber.GetTransferEvent(doc[i].abi, doc[i].address)
+          transforEvent = TokenTransferGrabber.GetTransferEvent(ERC20ABI, doc[i].address)
+          TokenTransferGrabber.ListenTransferTokens(transforEvent, web3.eth.blockNumber+1);
+        }
+      }
+    })
+}
+
+var grabBlocks = function(config) {
+    web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config.gethPort.toString()));
+    TokenTransferGrabber.Init(web3.eth);
+    ContractStruct = web3.eth.contract(ERC20ABI);
+    listenHistoryToken();
     if('listenOnly' in config && config.listenOnly === true) {
         listenBlocks(config, web3);
     }
@@ -26,7 +51,6 @@ var listenBlocks = function(config, web3) {
     var newBlocks = web3.eth.filter("latest");
     newBlocks.watch(function (error, log) {
         //console.log("watch log:", log);
-
         if(error) {
             console.log('Error: ' + error);
         } else if (log == null) {
@@ -78,8 +102,10 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
                 else {
                     writeBlockToDB(config, blockData);
                 }
+
                 if (!('skipTransactions' in config && config.skipTransactions === true))
                     writeTransactionsToDB(config, blockData, web3.eth);
+                
                 if('listenOnly' in config && config.listenOnly === true) 
                     return;
 
@@ -166,9 +192,6 @@ var writeTransactionsToDB = function(config, blockData, eth) {
     if (blockData.transactions.length > 0) {
         for (d in blockData.transactions) {
             var txData = blockData.transactions[d];
-            if(txData.to == null){//contract create
-                console.log("contract create at tx:"+txData.hash);
-            }
             txData.timestamp = blockData.timestamp;
             txData.gasPrice = etherUnits.toEther(new BigNumber(txData.gasPrice), 'ether');
             txData.value = etherUnits.toEther(new BigNumber(txData.value), 'wei');
@@ -178,9 +201,48 @@ var writeTransactionsToDB = function(config, blockData, eth) {
                 txData.gasUsed = receiptData.gasUsed;
                 txData.contractAddress = receiptData.contractAddress;
             }
-            
+            if(txData.input && txData.input.length>2){//contract transaction
+                if(txData.to == null){//contract create
+                    console.log("contract create at tx:"+txData.hash);
+                    var Token = ContractStruct.at(receiptData.contractAddress);
+                    if(Token){//write Token to Contract in db
+                        var contractdb = {}
+                        //contractdb.contractName=;
+                        // contractdb.abi = ;
+                        contractdb.byteCode = eth.getCode(receiptData.contractAddress);
+                        contractdb.ERC = 2;
+                        contractdb.decimals = Token.decimals();
+                        contractdb.symbol = Token.symbol();
+                        contractdb.totalSupply = Token.totalSupply();
+                        contractdb.owner = Token.owner();
+                        contractdb.creationTransaction = txData.hash;
+
+                        Contract.update(
+                            {address: receiptData.contractAddress}, 
+                            {$setOnInsert: contractdb}, 
+                            {upsert: true}, 
+                            function (err, data) {
+                            console.log(data);
+                            }
+                        );
+
+                        //patch and listen token transfer
+                        // TokenTransferGrabber.PatchTransferTokens(txData.contractAddress, ERC20ABI, blockData.number, true);
+
+                        //just listen
+                        var transforEvent = TokenTransferGrabber.GetTransferEvent(ERC20ABI, receiptData.contractAddress)
+                        TokenTransferGrabber.ListenTransferTokens(transforEvent);
+                    }else{//not Token Contract, need verify contract for detail
+                        console.log("not Token Contract");
+                    }
+                }
+            }else{//out transaction
+                console.log("not contract transaction");
+            }
+
             bulkOps.push(txData);
         }
+        //write transaction to db
         Transaction.collection.insert(bulkOps, function( err, tx ){
             if ( typeof err !== 'undefined' && err ) {
                 if (err.code == 11000) {
@@ -262,3 +324,4 @@ var config = {
 
 grabBlocks(config);
 // patchBlocks(config);
+
