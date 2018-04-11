@@ -7,7 +7,7 @@
                   <div ng-show="acc" class="margin-top-20"><span class="eth-stat-text"> Token Holder:</span> <a href="/addr/{{acc}}">{{acc}}</a></div>
                   <!--span class="eth-stat-title"> {{ token.balance | number: 10 }} </span> <br-->
                   <div class="margin-top-20"><span class="eth-stat-text">token name</span> {{ token.name }}  ({{ token.symbol }})</div>
-                  <div ng-show="!acc" class="margin-top-20"><span class="eth-stat-text">Total {{ token.symbol }} Tokens</span> {{ token.totalSupply | number:1 }}</div>
+                  <div ng-show="!acc" class="margin-top-20"><span class="eth-stat-text">Total {{ token.name }} </span> {{ token.totalSupply | number:1 }}</div>
                   <div class="margin-top-20"><span class="eth-stat-text"> decimals</span> {{ token.decimals }}</div>
                   
                   <!--div class="margin-top-20">
@@ -132,9 +132,9 @@
                               <td>{{t.timestamp | timeDuration}} ago</td>
                               <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
                               <td ng-show="acc==t.from" class="truncate-addrhash">{{t.from}} </td>
-                              <td ng-show="acc!=t.from" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}?acc={{t.from}}">{{t.from}}</a> </td>
+                              <td ng-show="acc!=t.from" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.from}}">{{t.from}}</a> </td>
                               <td ng-show="acc==t.to" class="truncate-addrhash"> {{t.to}} </td>
-                              <td ng-show="acc!=t.to" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}?acc={{t.to}}">{{t.to}}</a> </td>
+                              <td ng-show="acc!=t.to" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.to}}">{{t.to}}</a> </td>
                               <td style="text-align:right"> {{t.amount}} </td>
                               <td style="text-align:center"><span class="label label-sm label-info"> Transfer </span></td>
                           </tr>

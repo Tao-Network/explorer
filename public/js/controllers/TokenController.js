@@ -7,21 +7,26 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
     if (activeTab.length > 1)
       $scope.activeTab = activeTab[1];
 
-    $rootScope.$state.current.data["pageSubTitle"] = $stateParams.hash; //replace with token name
-    $scope.addrHash = isAddress($stateParams.hash) ? $stateParams.hash : undefined;
+    var contractAddress;
+    if($stateParams.hash.length==84){//contain two address
+      contractAddress = $stateParams.hash.substr(0,42);
+      $scope.acc = $stateParams.hash.substr(42,42);
+    }else{
+      contractAddress = $stateParams.hash;
+    }
+    $rootScope.$state.current.data["pageSubTitle"] = contractAddress; //replace with token name
+    $scope.addrHash = isAddress(contractAddress) ? contractAddress : undefined;
     var address = $scope.addrHash;
     $scope.token = {"balance": 0};
 
     //fetch token stuff
-    var acc = "";
-    if($location.$$search && $location.$$search.acc){
-      acc = $location.$$search.acc;
-      $scope.acc = acc;
-    }
+    // if($location.$$search && $location.$$search.acc){
+    //   $scope.acc = $location.$$search.acc;
+    // }
     $http({
       method: 'POST',
       url: '/tokenrelay',
-      data: {"action": "info", "address": address, 'fromAccount':acc}
+      data: {"action": "info", "address": address, 'fromAccount':$scope.acc}
     }).success(function(data) {
       console.log(data)
       $scope.token = data;
@@ -47,7 +52,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
           $http({
             method: 'POST',
             url: '/tokenrelay',
-            data: {"action": "balanceOf", "user": addr, "address": address, 'fromAccount':acc}
+            data: {"action": "balanceOf", "user": addr, "address": address, 'fromAccount':$scope.acc}
           }).success(function(data) {
             console.log(data)
             $scope.showTokens = true;
@@ -62,7 +67,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       $http({
         method: 'POST',
         url: '/tokenrelay',
-        data: {"action": "tokenTransfer", "address": address, "lastId":lastId, 'fromAccount':acc}
+        data: {"action": "tokenTransfer", "address": address, "lastId":lastId, 'fromAccount':$scope.acc}
       }).success(function(repData) {
         console.log("transfer_tokens:", repData);
         repData.forEach(function(record){
@@ -77,7 +82,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       $http({
         method: 'POST',
         url: '/tokenrelay',
-        data: {"action": "contractTransaction", "address": address, 'fromAccount':acc}
+        data: {"action": "contractTransaction", "address": address, 'fromAccount':$scope.acc}
       }).success(function(repData) {
         console.log("contractTransaction:", repData);
         $scope.contractTxList = repData;

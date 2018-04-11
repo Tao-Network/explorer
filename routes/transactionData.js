@@ -53,6 +53,7 @@ module.exports = function(req, res){
                 contractLink = "contract/"+contractAddr;
               }else{
                 isToken = true;
+                doc.tokenNum = doc.tokenNum/10**result.decimals;
                 contractLink = "token/"+contractAddr;
                 if(result.ERC == 2){
                   doc.ERC = "ERC20";
