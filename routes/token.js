@@ -77,10 +77,10 @@ module.exports = function(req, res){
           var dbToken = doc;
           tokenData = {
             "balance": dbToken.balance,
-            "totalSupply": dbToken.totalSupply,//dbToken.totalSupply.toEther(actualBalance, 'wei');
+            "totalSupply": dbToken.totalSupply/10**dbToken.decimals,//dbToken.totalSupply.toEther(actualBalance, 'wei');
             "tokenHolders": 2,//tt fix, wait to dev
             "count": count,
-            "name": dbToken.contractName,
+            "name": dbToken.tokenName,
             "symbol": dbToken.symbol,
             "bytecode": dbToken.byteCode,
             "transaction": dbToken.creationTransaction,
@@ -132,6 +132,7 @@ module.exports = function(req, res){
     try {
       var Token = ContractStruct.at(contractAddress);
       var tokens = Token.balanceOf(addr);
+      tokens = tokens/10**Token.decimals().toNumber();
       // tokens = etherUnits.toEther(tokens, 'wei')*100;
       res.write(JSON.stringify({"tokens": tokens}));
       res.end();

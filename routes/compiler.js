@@ -54,6 +54,7 @@ var compileSolc = function(req, res) {
     "compilerVersion": version,
     "optimization": optimization,
     "contractName": name,
+    // "tokenName":"",//don't overwrite
     "sourceCode": input
   }
 
@@ -209,7 +210,7 @@ var testValidCode = function(output, data, bytecode, response) {
           // data.owner = doc.from;
         } catch (e) {
           console.log(e.stack);
-          response.write("{err:"+ e.stack+"}");
+          response.write("{err:'"+ e.stack+"'}");
           response.end();
         }        
       }else{

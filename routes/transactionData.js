@@ -27,7 +27,7 @@ module.exports = function(req, res){
         }
         doc.contractAddr = contractAddr;
         var contractLable="";
-        var contractName="";
+        var tokenName="";
         var contractLink = "";
 
         if(doc.to==null){
@@ -63,7 +63,7 @@ module.exports = function(req, res){
                   doc.ERC = "ERC";
                 }
               } 
-              contractName = result.contractName;  
+              tokenName = result.tokenName;  
               if(!doc.to){//contract token creation
                 if(isToken)
                   contractLable = "token creation";
@@ -78,11 +78,11 @@ module.exports = function(req, res){
               }        
             }else{
               contractLable = "contract";//need verify
-              contractName = contractAddr;
+              tokenName = contractAddr;
               contractLink = "addr/"+contractAddr;
               doc.needVerify = true;
             }
-            doc.contractName = contractName;
+            doc.tokenName = tokenName;
             doc.contractLable = contractLable;
             doc.contractLink = contractLink;
             
@@ -91,7 +91,7 @@ module.exports = function(req, res){
             res.end();
           });
         }else{//normal transaction
-          doc.contractName = contractName;
+          doc.tokenName = tokenName;
           doc.contractLable = contractLable;
           doc.contractLink = contractLink;
           respData = JSON.stringify(doc);

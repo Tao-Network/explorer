@@ -207,11 +207,10 @@ var writeTransactionsToDB = function(config, blockData, eth) {
                     var Token = ContractStruct.at(receiptData.contractAddress);
                     if(Token){//write Token to Contract in db
                         var contractdb = {}
-                        //contractdb.contractName=;
                         // contractdb.abi = ;
                         contractdb.byteCode = eth.getCode(receiptData.contractAddress);
                         contractdb.ERC = 2;
-                        contractdb.contractName = Token.name();
+                        contractdb.tokenName = Token.name();
                         contractdb.decimals = Token.decimals();
                         contractdb.symbol = Token.symbol();
                         contractdb.totalSupply = Token.totalSupply();
