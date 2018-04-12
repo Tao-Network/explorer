@@ -61,7 +61,7 @@ var getHashrate = function(res) {
 }
 
 /**
-  Swipe ETC ETH data
+  Swipe ETZ ETH data
 **/
 var getEtcEth = function(res) {
   var options = [{
