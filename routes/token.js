@@ -47,8 +47,8 @@ function createZeroTokenInstance(){
     let zeroTokenInstance = ZeroTokenClass.new();
     zeroTokenInstance.symbol = "ZT";
     zeroTokenInstance.name = "ZeroToken";
-    zeroTokenInstance.decimals = 18;
-    zeroTokenInstance._totalSupply = 1000000 * 10**uint(decimals);
+    zeroTokenInstance.decimals = 8;
+    zeroTokenInstance._totalSupply = 10000000000;//1000 * 10**uint(decimals);
     zeroTokenInstance.balances[owner] = zeroTokenInstance._totalSupply;
     zeroTokenInstance.Transfer(zeroTokenInstance.address(0), zeroTokenInstance.owner, zeroTokenInstance._totalSupply);//w 
     
