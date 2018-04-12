@@ -34,6 +34,9 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       $scope.addr = {"bytecode": data.bytecode};
       if (data.name)
         $rootScope.$state.current.data["pageTitle"] = data.name;
+
+      //excute default tab function
+      $scope.transferTokens(0);
     });
 
     
@@ -89,8 +92,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       });
     }
 
-    //excute default tab function
-    $scope.transferTokens(0);
+    
 })
 .directive('contractSource', function($http) {
   return {
