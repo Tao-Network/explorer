@@ -1,12 +1,10 @@
 /**
- * collect transaction and Token Contract info and write to db
+ * collect transactions, Token Contracts info from blockchain . write to db
  */
 require( '../../db.js' );
 var etherUnits = require("../../lib/etherUnits.js");
 var BigNumber = require('bignumber.js');
-
 var fs = require('fs');
-
 var Web3 = require('web3');
 var web3;
 var mongoose = require( 'mongoose' );
