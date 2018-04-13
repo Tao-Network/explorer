@@ -102,8 +102,8 @@ contract ZeroToken is ERC20Interface, Owned {
     function ZeroToken() public {
         symbol = "ZT";
         name = "ZeroToken";
-        decimals = 18;
-        _totalSupply = 1000000000000*10**decimals;
+        decimals = 8;
+        _totalSupply = 10000*10**decimals;
         balances[owner] = _totalSupply;
         Transfer(address(0), owner, _totalSupply);
         
