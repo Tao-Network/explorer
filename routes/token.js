@@ -99,8 +99,13 @@ module.exports = function(req, res){
         }else{//find from blockChain
           var data ={};
           var eth = require('./web3relay').eth;
-          data.balance = eth.getBalance(contractAddress);
-          var bytecode = eth.getCode(contractAddress);
+          var bytecode;
+          try{
+            data.balance = eth.getBalance(contractAddress);
+            bytecode = eth.getCode(contractAddress);
+          }catch(err){
+            console.log(err);
+          }
           data.byteCode = bytecode;
           var txFind = Transaction.findOne({'to':null, 'contractAddress':contractAddress}).lean(true);
           txFind.exec(function (err, doc) {
