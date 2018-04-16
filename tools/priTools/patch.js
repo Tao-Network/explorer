@@ -16,7 +16,7 @@ var Contract     = mongoose.model( 'Contract' );
 var config3 = {
     "httpProvider":"http://localhost:9646",
     "patchStartBlocks": 4936271,//1
-    "patchEndBlocks": 5401403,//600
+    "patchEndBlocks": 5485123,//600
     "quiet": true,
     "terminateAtExistingDB": false
 };
