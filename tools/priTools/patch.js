@@ -15,7 +15,7 @@ var Contract     = mongoose.model( 'Contract' );
 //modify according to your actual situation.
 var config3 = {
     "gethPort": 9646,
-    "patchStartBlocks": 4936271,//1
+    "patchStartBlocks": 1,//5005909,//4936271,//1
     "patchEndBlocks": 5401403,//600
     "quiet": true,
     "terminateAtExistingDB": false
@@ -124,15 +124,21 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                     var Token = ContractStruct.at(receiptData.contractAddress);
                     if(Token){//write Token to Contract in db
                         var contractdb = {}
+                        var isTokenContract = true;
                         try{
                             contractdb.byteCode = eth.getCode(receiptData.contractAddress);
-                            contractdb.ERC = 2;
                             contractdb.tokenName = Token.name();
                             contractdb.decimals = Token.decimals();
                             contractdb.symbol = Token.symbol();
                             contractdb.totalSupply = Token.totalSupply();
+                        }catch(err){
+                            isTokenContract = false;
+                        }
+                        if(isTokenContract){
+                            contractdb.ERC = 2;
                             contractdb.owner = txData.from;
                             contractdb.creationTransaction = txData.hash;
+
                             Contract.update(
                                 {address: receiptData.contractAddress}, 
                                 {$setOnInsert: contractdb}, 
@@ -141,15 +147,16 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                                 console.log(data);
                                 }
                             );
-                        }catch(err){
-                            console.log("contract instance err:",err);
-                        } 
+                        }else{
+                            // console.log("not Token Contract");
+                        }
+                        
                     }else{//not Token Contract, need verify contract for detail
-                        console.log("not Token Contract");
+                        // console.log("not Token Contract");
                     }
                 }
             }else{//out transaction
-                console.log("not contract transaction");
+                // console.log("not contract transaction");
             }
             
             bulkOps.push(txData);
@@ -189,8 +196,10 @@ var writeTransactionsToDB3 = function(blockData, eth) {
   Patch Missing Blocks
 */
 var patchBlocks3 = function() {
-    // web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + config.gethPort.toString()));
-    web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config3.gethPort.toString()));
+    // web3 = new Web3(new Web3.providers.HttpProvider('http://106.14.105.179:9646'));
+    // web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:80'));
+    web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.etherzero.org:443'));
+    // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config3.gethPort.toString()));
     var lastBlock = web3.eth.blockNumber;
     console.log("topBlock:",lastBlock);
     ContractStruct = web3.eth.contract(ERC20ABI);

@@ -207,37 +207,46 @@ var writeTransactionsToDB = function(config, blockData, eth) {
                     var Token = ContractStruct.at(receiptData.contractAddress);
                     if(Token){//write Token to Contract in db
                         var contractdb = {}
-                        // contractdb.abi = ;
-                        contractdb.byteCode = eth.getCode(receiptData.contractAddress);
-                        contractdb.ERC = 2;
-                        contractdb.tokenName = Token.name();
-                        contractdb.decimals = Token.decimals();
-                        contractdb.symbol = Token.symbol();
-                        contractdb.totalSupply = Token.totalSupply();
-                        contractdb.owner = txData.from;
-                        contractdb.creationTransaction = txData.hash;
+                        var isTokenContract = true;
+                        try{
+                            contractdb.byteCode = eth.getCode(receiptData.contractAddress);
+                            contractdb.tokenName = Token.name();
+                            contractdb.decimals = Token.decimals();
+                            contractdb.symbol = Token.symbol();
+                            contractdb.totalSupply = Token.totalSupply();
+                        }catch(err){
+                            isTokenContract = false;
+                        }
+                        if(isTokenContract){
+                            contractdb.ERC = 2;
+                            contractdb.owner = txData.from;
+                            contractdb.creationTransaction = txData.hash;
 
-                        Contract.update(
-                            {address: receiptData.contractAddress}, 
-                            {$setOnInsert: contractdb}, 
-                            {upsert: true}, 
-                            function (err, data) {
-                            console.log(data);
-                            }
-                        );
+                            Contract.update(
+                                {address: receiptData.contractAddress}, 
+                                {$setOnInsert: contractdb}, 
+                                {upsert: true}, 
+                                function (err, data) {
+                                console.log(data);
+                                }
+                            );
 
-                        //patch and listen token transfer
-                        // TokenTransferGrabber.PatchTransferTokens(txData.contractAddress, ERC20ABI, blockData.number, true);
+                            //patch and listen token transfer
+                            // TokenTransferGrabber.PatchTransferTokens(txData.contractAddress, ERC20ABI, blockData.number, true);
 
-                        //just listen
-                        var transforEvent = TokenTransferGrabber.GetTransferEvent(ERC20ABI, receiptData.contractAddress)
-                        TokenTransferGrabber.ListenTransferTokens(transforEvent);
+                            //just listen
+                            var transforEvent = TokenTransferGrabber.GetTransferEvent(ERC20ABI, receiptData.contractAddress)
+                            TokenTransferGrabber.ListenTransferTokens(transforEvent);
+                        }else{
+                            // console.log("not Token Contract");
+                        }
+                        
                     }else{//not Token Contract, need verify contract for detail
-                        console.log("not Token Contract");
+                        // console.log("not Token Contract");
                     }
                 }
             }else{//out transaction
-                console.log("not contract transaction");
+                // console.log("not contract transaction");
             }
 
             bulkOps.push(txData);
