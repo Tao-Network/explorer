@@ -16,7 +16,7 @@ var Contract     = mongoose.model( 'Contract' );
 var config3 = {
     "httpProvider":"http://localhost:9646",
     "patchStartBlocks": 4936271,//1
-    "patchEndBlocks": 5485123,//600
+    "patchEndBlocks": "latest",//5485123,//600
     "quiet": true,
     "terminateAtExistingDB": false
 };
@@ -201,6 +201,11 @@ var patchBlocks3 = function() {
     // web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.etherzero.org:443'));
     web3 = new Web3(new Web3.providers.HttpProvider(config3.httpProvider));
     var lastBlock = web3.eth.blockNumber;
+    if(config3.patchEndBlocks == "latest"){
+        currentBlock = lastBlock+1;
+    }else{
+        currentBlock = config3.patchEndBlocks+1;
+    }
     console.log("topBlock:",lastBlock);
     ContractStruct = web3.eth.contract(ERC20ABI);
 
@@ -231,5 +236,6 @@ var tryNextBlock = function() {
 
 const ERC20ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}];
 var ContractStruct;
-var currentBlock = config3.patchEndBlocks+1;
+var currentBlock;
+
 patchBlocks3();
