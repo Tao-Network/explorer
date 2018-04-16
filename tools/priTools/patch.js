@@ -14,7 +14,7 @@ var Contract     = mongoose.model( 'Contract' );
 
 //modify according to your actual situation.
 var config3 = {
-    "gethPort": 9646,
+    "httpProvider":"http://localhost:9646",
     "patchStartBlocks": 1,//5005909,//4936271,//1
     "patchEndBlocks": 5401403,//600
     "quiet": true,
@@ -198,8 +198,8 @@ var writeTransactionsToDB3 = function(blockData, eth) {
 var patchBlocks3 = function() {
     // web3 = new Web3(new Web3.providers.HttpProvider('http://106.14.105.179:9646'));
     // web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:80'));
-    web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.etherzero.org:443'));
-    // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:' + config3.gethPort.toString()));
+    // web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.etherzero.org:443'));
+    web3 = new Web3(new Web3.providers.HttpProvider(config3.httpProvider));
     var lastBlock = web3.eth.blockNumber;
     console.log("topBlock:",lastBlock);
     ContractStruct = web3.eth.contract(ERC20ABI);
