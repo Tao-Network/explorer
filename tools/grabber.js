@@ -200,6 +200,8 @@ var writeTransactionsToDB = function(config, blockData, eth) {
             if(receiptData){
                 txData.gasUsed = receiptData.gasUsed;
                 txData.contractAddress = receiptData.contractAddress;
+                if(receiptData.status!=null)
+                    txData.status = receiptData.status;
             }
             if(txData.input && txData.input.length>2){//contract transaction
                 if(txData.to == null){//contract create
@@ -318,9 +320,6 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 }
 
 
-/** On Startup **/
-// geth --rpc --rpcaddr "localhost" --rpcport "9646"  --rpcapi "eth,net,web3"
-
 var config = {
     "gethPort": 9646,
     // "blocks": [ {"start": 0, "end": "latest"}],
@@ -332,5 +331,4 @@ var config = {
 };
 
 grabBlocks(config);
-// patchBlocks(config);
 

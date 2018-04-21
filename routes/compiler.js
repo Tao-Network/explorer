@@ -45,7 +45,7 @@ var compileSolc = function(req, res) {
   var data = {
     "address": address,
     "ERC": 0,
-    "creationTransaction": "", // deal with this later
+    "creationTransaction": "",
     "symbol": "",
     //"owner": "",//don't overwrite
     "decimals": 0,

@@ -128,7 +128,7 @@
                       </thead>
                       <tbody>
                           <tr ng-repeat="t in transfer_tokens track by $index">
-                              <td class="truncate-txhash"> <a href="/tx/{{t.transactionHash}}?isTransfer=true">{{t.transactionHash}}</a> </td>
+                              <td class="truncate-txhash"><span ng-show="tx.status==0" alt="transaction fail"><font color="#ff0000">  ！ </font></span> <a href="/tx/{{t.transactionHash}}?isTransfer=true">{{t.transactionHash}}</a> </td>
                               <td>{{t.timestamp | timeDuration}} ago</td>
                               <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
                               <td ng-show="acc==t.from" class="truncate-addrhash">{{t.from}} </td>
@@ -165,7 +165,8 @@
                       </tr>
                   </thead>
                   <tbody ng-repeat="t in contractTxList">
-                    <tr><td>{{t.hash}}</td><td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp | timeDuration}}</td></tr>                   
+                    <tr><td><span ng-show="tx.status==0"  alt="transaction fail"><font color="#ff0000">  ！ </font></span>{{t.hash}}</td>
+                        <td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp | timeDuration}}</td></tr>                   
                   </tbody>
               </table>
             </div><!-- End: Datatable tab -->

@@ -117,6 +117,8 @@ var writeTransactionsToDB3 = function(blockData, eth) {
             if(receiptData){
                 txData.gasUsed = receiptData.gasUsed;
                 txData.contractAddress = receiptData.contractAddress;
+                if(receiptData.status!=null)
+                    txData.status = receiptData.status;
             }
             if(txData.input && txData.input.length>2){//contract transaction
                 if(txData.to == null){//contract create

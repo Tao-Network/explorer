@@ -81,7 +81,10 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
                         return '<a href="/block/'+data+'">'+data+'</a>'
                       }, "targets": [1]},
           { "render": function(data, type, row) {
-                        return '<a href="/tx/'+data+'">'+data+'</a>'
+                        if(row[7]==0)
+                          return '<span ng-show="false"  alt="transaction fail"><font color="#ff0000">  ！ </font></span>'+'<a href="/tx/'+data+'">'+data+'</a>'
+                        else
+                          return '<a href="/tx/'+data+'">'+data+'</a>'
                       }, "targets": [0]},
           { "render": function(data, type, row) {
                         return getDuration(data).toString();

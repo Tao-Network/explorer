@@ -49,6 +49,7 @@ var Transaction = new Schema(
     "blockHash": String,
     "blockNumber": Number,
     "transactionIndex": Number,
+    "status":Number,
     "from": String,
     "to": String,
     "value": String,
