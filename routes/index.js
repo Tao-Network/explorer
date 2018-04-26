@@ -16,6 +16,7 @@ module.exports = function(app){
   var tokenListData = require('./tokenListData');
   var contractListData = require('./contractListData');
   var transactionData = require('./transactionData');
+  var internalTX = require('./tokenTransfer');
   var compile = require('./compiler');
   var fiat = require('./fiat');
   var stats = require('./stats');
@@ -37,6 +38,7 @@ module.exports = function(app){
   app.post('/tokenListData', tokenListData); 
   app.post('/contractListData', contractListData); 
   app.post('/transactionRelay', transactionData); 
+  app.post('/internalTX', internalTX);
   app.post('/web3relay', web3relay.data);
   app.post('/compile', compile);
 

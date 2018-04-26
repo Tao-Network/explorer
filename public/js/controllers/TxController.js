@@ -22,7 +22,9 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
       if (data.timestamp)
         $scope.tx.datetime = new Date(data.timestamp*1000); 
       if (data.isTrace) // Get internal txs
-        fetchInternalTxs();
+        //fetchInternalTxs();
+        $scope.logs=[];
+        $scope.getLogs();
     });
 
     var fetchInternalTxs = function() {
@@ -33,5 +35,40 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
       }).success(function(data) {
         $scope.internal_transactions = data;
       });      
+    }
+
+    $scope.getLogs = function() {
+      if($scope.logs){
+        return;
+      }
+      $http({
+        method: 'POST',
+        url: '/internalTX',
+        data: {"logs": $scope.hash}
+      }).success(function(data) {
+        $scope.logs = data;
+        for(var i=0; i<$scope.logs.length; i++){
+          $scope.logs[i].params = splitParam($scope.logs[i].to);
+        }
+        
+      });      
+    }
+
+    var splitParam = function(paramsStr){
+      var params = [];
+      var step = 0;
+      var addNum;
+      for(var i=0; i<paramsStr.length; i=i+addNum){
+        if(i==0){
+          params.push(paramsStr.substr(0, 10));
+          addNum=10;
+        }
+        else{
+          params.push(paramsStr.substr(10+(step-1)*64, 64));
+          addNum=64;
+        }
+        step++;
+      }
+      return params;
     }
 })

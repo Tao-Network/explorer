@@ -66,6 +66,7 @@ var TokenTransfer = new Schema(
     {
         "transactionHash": String,
         "blockNumber": Number,
+        "methodName": String,
         "amount": Number,
         "contractAdd": String,
         "to": String,

@@ -156,6 +156,8 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                     }else{//not Token Contract, need verify contract for detail
                         // console.log("not Token Contract");
                     }
+                }else{//internal tansaction
+
                 }
             }else{//out transaction
                 // console.log("not contract transaction");

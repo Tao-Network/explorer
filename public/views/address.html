@@ -23,14 +23,14 @@
                     <span class='btn grey'  ng-show="isFollowing(token.ash)" ng-click="unFollow(token.ash)">WATCHING <i class="fa fa-check "></i></span>
                     <div class="margin-top-20"><span class="eth-stat-text">WATCHING</span> {{ token.follow_count }}</div-->
                     <div>
-                       <span class="eth-stat-text">Contract creator</span><br>
+                       <span class="eth-stat-text">creator</span><br>
                        <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
                        <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
-                    <div class="margin-top-20"><span class="eth-stat-text">Contract Address</span><br>
+                    <div class="margin-top-20"><span class="eth-stat-text">Contract</span><br>
                         <a href="/token/{{token.address}}">{{ token.address }}</a>
                      </div>
-                    <div class="margin-top-20"><span class="eth-stat-text">transaction Address</span><br>
+                    <div class="margin-top-20"><span class="eth-stat-text">transaction</span><br>
                         <a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,41) }}...</a></div>
                   </div>
                 </div>

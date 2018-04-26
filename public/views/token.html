@@ -50,16 +50,20 @@
                         <span class="eth-stat-text">WATCHING</span>
                     </div-->
                     <div ng-show="!acc" class="margin-top-20">
-                       <span class="eth-stat-text">Token creator</span><br>
+                       <span class="eth-stat-text">creator</span><br>
                        <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
                        <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
                     <div ng-show="acc" class="margin-top-20">
-                       <span class="eth-stat-text">Token Address</span><br>
+                       <span class="eth-stat-text">Token</span><br>
                        <a href="/token/{{token.address}}">{{token.address }}</a>
                     </div>
                     <div ng-show="!acc" class="margin-top-20">
-                        <span class="eth-stat-text">transaction Address</span><br>
+                        <span class="eth-stat-text">Token Address</span><br>
+                        <a href="/addr/{{token.address}}">{{token.address }}</a>
+                     </div>
+                    <div ng-show="!acc" class="margin-top-20">
+                        <span class="eth-stat-text">transaction</span><br>
                         <a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,41) }}...</a>
                     </div>
                 </div>
