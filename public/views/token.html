@@ -146,10 +146,10 @@
                   </table>
                   <ul class="pager">
                       <li class="previous">
-                          <a ng-click="transferTokens(transfer_tokens[0]._id)"> ← Newer </a>
+                          <a ng-click="transferTokens(transferPage-1)"> ← Newer </a>
                       </li>
                       <li class="next">
-                          <a ng-click="transferTokens(transfer_tokens[transfer_tokens.length-1]._id)"> Older → </a>
+                          <a ng-click="transferTokens(transferPage+1)"> Older → </a>
                       </li>
                   </ul>
                 </div>
@@ -173,6 +173,14 @@
                         <td>{{t.blockNumber}}</td><td>{{t.from}}</td><td>{{t.to}}</td><td>{{t.value}}</td><td>{{t.gas}}</td><td>{{t.timestamp | timeDuration}}</td></tr>                   
                   </tbody>
               </table>
+              <ul class="pager">
+                <li class="previous">
+                    <a ng-click="contractTransaction(transactionPage-1)"> ← Newer </a>
+                </li>
+                <li class="next">
+                    <a ng-click="contractTransaction(transactionPage+1)"> Older → </a>
+                </li>
+            </ul>
             </div><!-- End: Datatable tab -->
 
             <div class="tab-pane" id="tab_token_4" ng-class="{active: activeTab == 'tab_token_4'}">

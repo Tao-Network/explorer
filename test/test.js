@@ -35,7 +35,8 @@ function updeateConctract(){
         "balance":0,
         "compilerVersion": "version",
         "optimization": false,
-        "contractName": "ZeroToken",
+        "tokenName": "ZeroToken",
+        "contractName": "TokenDam",
         "sourceCode": "input"
       }
       

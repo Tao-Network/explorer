@@ -65,12 +65,13 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
             $scope.errors.address = "Invalid Address";
     }
 
-    $scope.transferTokens=function(lastId) {
+    $scope.transferPage = 0;
+    $scope.transferTokens=function(transferPage) {
       console.log("【request】 tokenTransfer");
       $http({
         method: 'POST',
         url: '/tokenrelay',
-        data: {"action": "tokenTransfer", "address": address, "lastId":lastId, 'fromAccount':$scope.acc}
+        data: {"action": "tokenTransfer", "address": address, "transferPage":transferPage, 'fromAccount':$scope.acc}
       }).success(function(repData) {
         console.log("transfer_tokens:", repData);
         repData.forEach(function(record){
@@ -80,12 +81,13 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       });
     }
     
-    $scope.contractTransaction=function() {
+    $scope.transactionPage = 0;
+    $scope.contractTransaction=function(transactionPage) {
       console.log("【request】 contractTransaction");
       $http({
         method: 'POST',
         url: '/tokenrelay',
-        data: {"action": "contractTransaction", "address": address, 'fromAccount':$scope.acc}
+        data: {"action": "contractTransaction", "address": address, 'fromAccount':$scope.acc, "transactionPage":transactionPage}
       }).success(function(repData) {
         console.log("contractTransaction:", repData);
         $scope.contractTxList = repData;

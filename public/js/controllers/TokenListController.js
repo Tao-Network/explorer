@@ -4,14 +4,24 @@ angular.module('BlocksApp').controller('TokenListController', function($statePar
         App.initAjax();
     });
 
-
+    $scope.page = 0;
+    $scope.getInfoList=function(page) {
       $http({
         method: 'POST',
         url: '/tokenListData',
-        data: {"ERC": 0}
+        data: {"ERC": 0, "page":page}
       }).success(function(repData) {
-        console.log("tokens:", repData);
-        $scope.contracts = repData;
+        $scope.page = repData.page;
+        var pages = [];
+        for(i=0; i<repData.totalPage; i++){
+          pages.push(i+1);
+        }
+        $scope.pages = pages;
+        $scope.totalPage = repData.totalPage;
+        $scope.contracts = repData.list;
       });
+    }
+
+    $scope.getInfoList();
     
 })

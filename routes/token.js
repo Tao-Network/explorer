@@ -81,6 +81,7 @@ module.exports = function(req, res){
             "tokenHolders": 2,//tt fix, wait to dev
             "count": count,
             "name": dbToken.tokenName,
+            "ERC":dbToken.ERC,
             "symbol": dbToken.symbol,
             "bytecode": dbToken.byteCode,
             "transaction": dbToken.creationTransaction,
@@ -154,9 +155,13 @@ module.exports = function(req, res){
     var respData = "";
     try{
       console.log("respone contractTransaction");
+      var transactionPage = req.body.transactionPage;
       var mongoose = require( 'mongoose' );
       var Transaction = mongoose.model( 'Transaction' );
-      transactionFind = Transaction.find({to:req.body.address}).lean(true);
+
+      if(transactionPage<0)
+        transactionPage = 0;
+      transactionFind = Transaction.find({to:req.body.address}).skip(transactionPage*10).limit(10).lean(true);
       transactionFind.exec(function (err, docs) {
       espData = JSON.stringify(docs);
       res.write(espData);
@@ -169,16 +174,18 @@ module.exports = function(req, res){
   }else if(req.body.action=="tokenTransfer"){
     var respData = "";
     try{
-      console.log("respone TokenTransfer");
+      var transferPage = req.body.transferPage;
       var mongoose = require( 'mongoose' );
       var TokenTransfer = mongoose.model( 'TokenTransfer' );
       var findCond;
       if(fromAccount){
         findCond = {contractAdd:req.body.address, $or:[{"to": fromAccount}, {"from": fromAccount}]};
       }else{
-        findCond = {contractAdd:req.body.address}; 
+        findCond = {contractAdd:req.body.address};
       }
-      tokenTransferFind = TokenTransfer.find(findCond).lean(true);
+      if(transferPage<0)
+          transferPage=0;
+      tokenTransferFind = TokenTransfer.find(findCond).skip(transferPage*10).limit(10).lean(true);
       tokenTransferFind.exec(function (err, docs) {
       respData = JSON.stringify(docs);
       res.write(respData);

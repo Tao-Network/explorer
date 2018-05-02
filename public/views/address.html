@@ -27,7 +27,7 @@
                        <a href="/addr/{{token.creator}}">{{ token.creator }}</a>
                        <!--a href="/tx/{{token.transaction}}">{{ token.transaction.substr(0,24) }}...</a-->
                     </div>
-                    <div class="margin-top-20"><span class="eth-stat-text">Contract</span><br>
+                    <div ng-show="token.ERC>0" class="margin-top-20"><span class="eth-stat-text">Contract</span><br>
                         <a href="/token/{{token.address}}">{{ token.address }}</a>
                      </div>
                     <div class="margin-top-20"><span class="eth-stat-text">transaction</span><br>

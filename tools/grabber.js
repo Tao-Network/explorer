@@ -136,8 +136,7 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
                 }
             }
         });
-    }
-    else {
+    }else {
         console.log('Error: Aborted due to web3 is not connected when trying to ' +
             'get block ' + desiredBlockHashOrNumber);
         process.exit(9);
@@ -208,10 +207,10 @@ var writeTransactionsToDB = function(config, blockData, eth) {
             if(txData.input && txData.input.length>2){//internal transaction , contract create
                 if(txData.to == null){//contract create
                     console.log("contract create at tx:"+txData.hash);
+                    var contractdb = {}
+                    var isTokenContract = true;
                     var Token = ContractStruct.at(receiptData.contractAddress);
                     if(Token){//write Token to Contract in db
-                        var contractdb = {}
-                        var isTokenContract = true;
                         try{
                             contractdb.byteCode = eth.getCode(receiptData.contractAddress);
                             contractdb.tokenName = Token.name();
@@ -221,35 +220,27 @@ var writeTransactionsToDB = function(config, blockData, eth) {
                         }catch(err){
                             isTokenContract = false;
                         }
-                        if(isTokenContract){
-                            contractdb.ERC = 2;
-                            contractdb.owner = txData.from;
-                            contractdb.creationTransaction = txData.hash;
-
-                            Contract.update(
-                                {address: receiptData.contractAddress}, 
-                                {$setOnInsert: contractdb}, 
-                                {upsert: true}, 
-                                function (err, data) {
-                                console.log(data);
-                                }
-                            );
-
-                            //transferEvent grab is turned to internal transaction
-
-                            //patch and listen token transfer
-                            // TokenTransferGrabber.PatchTransferTokens(txData.contractAddress, ERC20ABI, blockData.number, true);
-
-                            //just listen
-                            // var transforEvent = TokenTransferGrabber.GetTransferEvent(ERC20ABI, receiptData.contractAddress)
-                            // TokenTransferGrabber.ListenTransferTokens(transforEvent);
-                        }else{
-                            // console.log("not Token Contract");
-                        }
-                        
                     }else{//not Token Contract, need verify contract for detail
                         // console.log("not Token Contract");
+                        isTokenContract = false;
                     }
+                    contractdb.owner = txData.from;
+                    contractdb.creationTransaction = txData.hash;
+                    if(isTokenContract){
+                        contractdb.ERC = 2;
+                    }else{// normal contract
+                        // console.log("normal contract");
+                        contractdb.ERC = 0;
+                    }
+                    //write to db
+                    Contract.update(
+                        {address: receiptData.contractAddress}, 
+                        {$setOnInsert: contractdb}, 
+                        {upsert: true}, 
+                        function (err, data) {
+                        console.log(data);
+                        }
+                    );
                 }else{//internal transaction  . write to db
                     var eventLog = {"transactionHash": "", "blockNumber": 0, "amount": 0, "contractAdd":"", "to": "", "from": "", "timestamp":0};
                     var methodCode = txData.input.substr(0,10);
