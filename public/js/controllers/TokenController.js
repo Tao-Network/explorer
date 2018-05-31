@@ -80,6 +80,20 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
         $scope.transfer_tokens = repData;
       });
     }
+
+    $scope.internalPage = 0;
+    $scope.internalTransaction=function(internalPage) {
+      $http({
+        method: 'POST',
+        url: '/internalTX',
+        data: {"action": "tokenTransfer", "address": address, "internalPage":internalPage, 'fromAccount':$scope.acc}
+      }).success(function(repData) {
+        repData.forEach(function(record){
+          record.amount = record.amount/10**parseInt($scope.token.decimals);
+        })
+        $scope.internalDatas = repData;
+      });
+    }
     
     $scope.transactionPage = 0;
     $scope.contractTransaction=function(transactionPage) {

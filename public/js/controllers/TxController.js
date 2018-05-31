@@ -44,7 +44,7 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
       $http({
         method: 'POST',
         url: '/internalTX',
-        data: {"logs": $scope.hash}
+        data: {"txHash": $scope.hash}
       }).success(function(data) {
         $scope.logs = data;
         for(var i=0; i<$scope.logs.length; i++){

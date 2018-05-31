@@ -11,11 +11,13 @@ var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 var Contract     = mongoose.model( 'Contract' );
+var InternalTx = mongoose.model( 'TokenTransfer' );
+const ERC20_EVENT_DIC = {"0xa9059cbb":"Transfer", "0x23b872dd":"TransferFrom", "0x095ea7b3":"Approve","0xf2fde38b":"TransferOwnership"};
 
 //modify according to your actual situation.
 var config3 = {
     "httpProvider":"http://localhost:9646",
-    "patchStartBlocks": 4936271,//1
+    "patchStartBlocks": 4936270,//1
     "patchEndBlocks": "latest",//5485123,//600
     "quiet": true,
     "terminateAtExistingDB": false
@@ -120,13 +122,13 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                 if(receiptData.status!=null)
                     txData.status = receiptData.status;
             }
-            if(txData.input && txData.input.length>2){//contract transaction
+            if(txData.input && txData.input.length>2){//internal transaction , contract create
                 if(txData.to == null){//contract create
                     console.log("contract create at tx:"+txData.hash);
+                    var contractdb = {}
+                    var isTokenContract = true;
                     var Token = ContractStruct.at(receiptData.contractAddress);
                     if(Token){//write Token to Contract in db
-                        var contractdb = {}
-                        var isTokenContract = true;
                         try{
                             contractdb.byteCode = eth.getCode(receiptData.contractAddress);
                             contractdb.tokenName = Token.name();
@@ -136,38 +138,77 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                         }catch(err){
                             isTokenContract = false;
                         }
-                        if(isTokenContract){
-                            contractdb.ERC = 2;
-                            contractdb.owner = txData.from;
-                            contractdb.creationTransaction = txData.hash;
-
-                            Contract.update(
-                                {address: receiptData.contractAddress}, 
-                                {$setOnInsert: contractdb}, 
-                                {upsert: true}, 
-                                function (err, data) {
-                                console.log(data);
-                                }
-                            );
-                        }else{
-                            // console.log("not Token Contract");
-                        }
-                        
                     }else{//not Token Contract, need verify contract for detail
                         // console.log("not Token Contract");
+                        isTokenContract = false;
                     }
-                }else{//internal tansaction
+                    contractdb.owner = txData.from;
+                    contractdb.creationTransaction = txData.hash;
+                    if(isTokenContract){
+                        contractdb.ERC = 2;
+                    }else{// normal contract
+                        // console.log("normal contract");
+                        contractdb.ERC = 0;
+                    }
+                    //write to db
+                    Contract.update(
+                        {address: receiptData.contractAddress}, 
+                        {$setOnInsert: contractdb}, 
+                        {upsert: true}, 
+                        function (err, data) {
+                            if(err)
+                                console.log(err);
+                        }
+                    );
+                }else{//internal transaction  . write to doc of InternalTx
+                    var eventLog = {"transactionHash": "", "blockNumber": 0, "amount": 0, "contractAdd":"", "to": "", "from": "", "timestamp":0};
+                    var methodCode = txData.input.substr(0,10);
+                    if(methodCode=="0xa9059cbb"){//token transfer transaction
+                        eventLog.methodName = "Transfer";
+                        eventLog.to= "0x"+txData.input.substring(34,74);
+                        eventLog.amount= Number("0x"+txData.input.substring(74));
+                    }else{//other intternal transaction
+                        if(ERC20_EVENT_DIC[methodCode])
+                            eventLog.methodName = ERC20_EVENT_DIC[methodCode];
+                        eventLog.to= txData.input;//raw data save at "to"
+                    }
+                    eventLog.transactionHash= txData.hash;
+                    eventLog.blockNumber= blockData.number;
+                    eventLog.contractAdd= txData.to;
+                    eventLog.from= txData.from;
+                    eventLog.timestamp = blockData.timestamp;
 
+                    //write all type of internal transaction into db
+                    InternalTx.update(
+                        {transactionHash: eventLog.transactionHash}, 
+                        {$setOnInsert: eventLog}, 
+                        {upsert: true}, 
+                        function (err, data) {
+                            if(err)
+                                console.log(err);
+                        }
+                    );
+
+                    //write all type of internal transaction into db
+                    // new InternalTx(eventLog).save( function( err, token, count ){
+                    //     if ( typeof err !== 'undefined' && err ) {
+                    //     if (err.code == 11000) {
+                    //         console.log('Skip: Duplicate tx ' + txData.hash + ': ' + err);
+                    //         return null;
+                    //     } else {
+                    //         console.log('Error: Aborted due to error on ' + 'block number ' + blockData.number.toString() + ': ' + err);
+                    //         return null;
+                    //     }
+                    //     } else {
+                    //         // console.log('DB successfully written for tx ' + txData.hash );  
+                    //     }       
+                    // });
                 }
             }else{//out transaction
                 // console.log("not contract transaction");
             }
-            
-            bulkOps.push(txData);
 
-            //update doc
-            // Transaction.collection.save(txData);
-            // Transaction.collection.updateOne({'hash':txData.hash}, { $set: { 'timestamp': txData.timestamp }});
+            bulkOps.push(txData);
         }
 
         //insert doc
@@ -177,9 +218,8 @@ var writeTransactionsToDB3 = function(blockData, eth) {
                     // console.log('Skip: Duplicate key ' + err);
                     console.log('Skip: Duplicate key ');
                 } else {
-                   console.log('Error: Aborted due to error: ' + 
-                        err);
-                   process.exit(9);
+                   console.log('Error: Aborted due to error: ' + err);
+                   //process.exit(9);
                }
             } else if(!('quiet' in config3 && config3.quiet === true)) {
                 console.log('DB written tx num: ' + blockData.transactions.length.toString() );

@@ -179,9 +179,9 @@ module.exports = function(req, res){
       var TokenTransfer = mongoose.model( 'TokenTransfer' );
       var findCond;
       if(fromAccount){
-        findCond = {contractAdd:req.body.address, $or:[{"to": fromAccount}, {"from": fromAccount}]};
+        findCond = {contractAdd:req.body.address, methodName:"Transfer", $or:[{"to": fromAccount}, {"from": fromAccount}]};
       }else{
-        findCond = {contractAdd:req.body.address};
+        findCond = {contractAdd:req.body.address, methodName:"Transfer"};
       }
       if(transferPage<0)
           transferPage=0;

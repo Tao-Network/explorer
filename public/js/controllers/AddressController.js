@@ -93,17 +93,24 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       });
     }
 
-    var fetchInternalTxs = function() {
+    
+    $scope.internalPage = 0;
+    $scope.internalTransaction=function(internalPage) {
       $http({
         method: 'POST',
-        url: '/web3relay',
-        data: {"addr_trace": $scope.addrHash}
-      }).success(function(data) {
-        $scope.internal_transactions = data;
-      });      
+        url: '/internalTX',
+        data: {"action": "tokenTransfer", "address": $scope.addrHash, "internalPage":internalPage, 'fromAccount':$scope.acc}
+      }).success(function(repData) {
+        repData.forEach(function(record){
+          record.amount = record.amount/10**parseInt($scope.token.decimals);
+        })
+        $scope.internalDatas = repData;
+      });
     }
-    
+   
 })
+
+
 .directive('contractSource', function($http) {
   return {
     restrict: 'E',

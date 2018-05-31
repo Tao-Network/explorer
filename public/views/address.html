@@ -48,11 +48,11 @@
           <div class="tabbable-line">
             <ul class="nav nav-tabs ">
                 <li ng-class="{active: activeTab == 'tab_addr_1' || !activeTab}">
-                    <a href="#tab_addr_1" data-toggle="tab" aria-expanded="true"> Transactions </a>
+                    <a href="#tab_addr_1" data-toggle="tab" aria-expanded="true"> All Transactions </a>
                 </li>
-                <!--li ng-class="{active: activeTab == 'tab_addr_2'}" ng-show="addr.isContract">
+                <li ng-class="{active: activeTab == 'tab_addr_2'}" ng-show="addr.isContract" ng-click="internalTransaction(0)">
                     <a href="#tab_addr_2" data-toggle="tab" aria-expanded="false"> Internal Transactions </a>
-                </li-->
+                </li>
                 <li class="" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_3'}">
                     <a href="#tab_addr_3" data-toggle="tab" aria-expanded="false"> Contract Source </a>
                 </li>
@@ -75,7 +75,8 @@
                     <tbody></tbody>
                 </table>
               </div><!-- End: Datatable tab -->
-              <div class="tab-pane" id="tab_addr_2" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_2'}">
+
+              <!--div class="tab-pane" id="tab_addr_2" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_2'}">
                 <table class="table table-condensed" ng-show="addr.isContract">
                   <thead>
                       <tr>
@@ -100,7 +101,46 @@
                       </tr>
                   </tbody>
                 </table>
-              </div>
+              </div-->
+
+              <div class="tab-pane" id="tab_addr_2" ng-class="{active: activeTab == 'tab_addr_2'}">
+                <div class="table-scrollable">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th> TxHash </th>
+                                <th> Age </th>
+                                <th> Block </th>
+                                <th> From </th>
+                                <th> To </th>
+                                <th style="text-align:right"> Amount </th>
+                                <th>type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="t in internalDatas track by $index">
+                                <td class="truncate-txhash"><span ng-show="tx.status==0" alt="transaction fail"><font color="#ff0000">  ！ </font></span> <a href="/tx/{{t.transactionHash}}?isTransfer=true">{{t.transactionHash}}</a> </td>
+                                <td>{{t.timestamp | timeDuration}} ago</td>
+                                <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
+                                <td ng-show="acc==t.from" class="truncate-addrhash">{{t.from}} </td>
+                                <td ng-show="acc!=t.from" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.from}}">{{t.from}}</a> </td>
+                                <td ng-show="acc==t.to" class="truncate-addrhash"> {{t.to}} </td>
+                                <td ng-show="acc!=t.to" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.to}}">{{t.to}}</a> </td>
+                                <td style="text-align:right"> {{t.amount}} </td>
+                                <td style="text-align:center"><span class="label label-sm label-info"> {{t.methodName}} </span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <ul class="pager">
+                        <li class="previous">
+                            <a ng-click="internalTransaction(internalPage-1)"> ← Newer </a>
+                        </li>
+                        <li class="next">
+                            <a ng-click="internalTransaction(internalPage+1)"> Older → </a>
+                        </li>
+                    </ul>
+                  </div>
+              </div><!-- end Internal txs Tab -->
 
               <div class="tab-pane" ng-class="{active: activeTab == 'tab_addr_3'}" id="tab_addr_3">
                 <contract-source></contract-source>
