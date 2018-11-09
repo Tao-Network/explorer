@@ -52,11 +52,17 @@ function filterBlocks(blocks) {
   if (blocks.constructor !== Array) {
     var b = blocks;
     b.extraData = hex2ascii(blocks.extraData);
+    if(b.extraData && b.extraData.length>5){
+      b.extraData = b.extraData.charCodeAt(3)+"."+b.extraData.charCodeAt(4)+"."+b.extraData.charCodeAt(5);
+    }
     return b;
   }
   return blocks.map(function(block) {
     var b = block;
     b.extraData = hex2ascii(block.extraData);
+    if(b.extraData && b.extraData.length>5){
+      b.extraData = b.extraData.charCodeAt(3)+"."+b.extraData.charCodeAt(4)+"."+b.extraData.charCodeAt(5);
+    }
     return b;
   })
 }

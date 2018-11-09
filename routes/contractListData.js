@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 module.exports = function(req, res){
+  var page = req.body.page;
+  if(page<0 || page==undefined)
+        page = 0;
+  var resultData={"totalPage":0, "list":null, "page":page};
   var respData = "";
     try{
-      page = req.body.page;
-      if(page<0 || page==undefined)
-        page = 0;
       var pageSize = 10;
-      resultData={"totalPage":0, "list":null, "page":page};
       var ERC_type = req.body.ERC;
       var mongoose = require( 'mongoose' );
       var Contract = mongoose.model('Contract');
@@ -21,7 +21,7 @@ module.exports = function(req, res){
             resultData.page = 0;
             page=0;
           }
-          contractFind = Contract.find(findCondition).skip(page*pageSize).limit(pageSize).lean(true);
+          contractFind = Contract.find(findCondition, "contractName tokenName ERC address").skip(page*pageSize).limit(pageSize).lean(true);
           contractFind.exec(function (err, docs) {
             resultData.list=docs;
             respData = JSON.stringify(resultData);
@@ -31,5 +31,7 @@ module.exports = function(req, res){
         });
     } catch (e) {
       console.error(e);
+      res.write(JSON.stringify(resultData));
+      res.end();
     }
 }; 

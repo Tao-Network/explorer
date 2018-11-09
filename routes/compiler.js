@@ -16,9 +16,12 @@ var soliCompCache = {};//solidity compiler cache。generating for compiler cost 
   TODO: support other languages
 */
 module.exports = function(req, res) {
-  console.log(req.body);
-  if (!("action" in req.body))
+  // console.log(req.body);
+  if (!("action" in req.body)){
     res.status(400).send();
+    res.end();
+  }
+    
   if (req.body.action=="compile") {
     compileSolc(req, res);
   } else if (req.body.action=="find") {
@@ -57,6 +60,14 @@ var compileSolc = function(req, res) {
     // "tokenName":"",//don't overwrite
     "sourceCode": input
   }
+  if(bytecode==""){
+    data.valid = false;
+    data.err = "eth.getCode('"+address+"') get empty";
+    data["verifiedContracts"] = [];
+    res.write(JSON.stringify(data));
+    res.end();
+    return;
+  }
 
   var targetSolc = soliCompCache[version];
   if(!targetSolc){
@@ -71,7 +82,10 @@ var compileSolc = function(req, res) {
           console.log("on loadRemoteVersion:"+version); 
           if (err) {
             console.error(err);
-            res.write(JSON.stringify({"valid": false, "err": "loadRemoteVersion fail :"+err}));
+            data.valid = false;
+            data.err = err.toString();
+            data["verifiedContracts"] = [];
+            res.write(JSON.stringify(data));
             res.end();
             return;
           }
@@ -86,6 +100,11 @@ var compileSolc = function(req, res) {
       return;
     } catch (e) {
       console.error(e.stack);
+      data.valid = false;
+      data["verifiedContracts"] = [];
+      response.write(JSON.stringify(data));
+      response.end();
+      return;
     }
   }else{
     var output = targetSolc.compile(input, optimise); 
@@ -158,6 +177,13 @@ var testValidCode = function(output, data, bytecode, response) {
   var verifiedContracts = [];
   var targetContractName = data.contractName;
 
+  if(!output.contracts){
+    data.valid = false;
+    data["verifiedContracts"] = verifiedContracts;
+    response.write(JSON.stringify(data));
+    response.end();
+    return;
+  }
   if(targetContractName.indexOf(":")!=0)
     targetContractName = ":"+targetContractName;//compiled contract name has prefix char :
   var targetContract = output.contracts[targetContractName]
@@ -187,13 +213,20 @@ var testValidCode = function(output, data, bytecode, response) {
   testCode = testCode.substring(0,endIndex);
   //console.log("bytecode on blockchain:");
   //console.log(testCode);
-  if (!output.contracts || !targetContract)
+  if (!targetContract){
     data.valid = false;
-  //else if (concatByteCode.indexOf(bytecode) > -1){
-  else if(concatByteCode.indexOf(testCode) > -1){
-    //write to db
+    data["verifiedContracts"] = verifiedContracts;
+    response.write(JSON.stringify(data));
+    response.end();
+    return;
+  }else if(concatByteCode.indexOf(testCode) > -1){
+    data.valid = true;
     data.abi = targetContract.interface;
     data.byteCode = bytecode;
+    data["verifiedContracts"] = verifiedContracts;
+    response.write(JSON.stringify(data));
+    response.end();
+    //write to db
     var  ERCType = checkERC(data.abi);
     data.ERC = ERCType;
     var txFind = Transaction.findOne({to:null, contractAddress:data.address}).lean(true);
@@ -204,14 +237,14 @@ var testValidCode = function(output, data, bytecode, response) {
       if(ERCType>0){//is token
         try{
           var Token = ContractStruct.at(data.address);
-          data.decimals = Token.decimals();
+          data.decimals = Number(Token.decimals().toString());
           data.symbol = Token.symbol();
           data.totalSupply = Token.totalSupply();
           // data.owner = doc.from;
         } catch (e) {
           console.log(e.stack);
-          response.write("{err:'"+ e.stack+"'}");
-          response.end();
+          // response.write("{err:'"+ e.stack+"'}");
+          // response.end();
         }        
       }else{
         console.log("can not find token on blockchain. token address:"+data.address);
@@ -220,19 +253,22 @@ var testValidCode = function(output, data, bytecode, response) {
         data.creationTransaction = doc.hash;
       }
       Contract.addContract(data);
-      
       //write TokenTransfer to db and listening
       // if(ERCType>0)//token contract
       //   TokenTransferGrabber.PatchTransferTokens(data, true);
     })
-    data.valid = true;
-    console.log("verify complete Contract:"+data.address);
-  }  else
+    
+    // console.log("verify complete Contract:"+data.address);
+  }else{
     data.valid = false;
+    data["verifiedContracts"] = verifiedContracts;
+    response.write(JSON.stringify(data));
+    response.end();
+    return;
+  }
+    
 
-  data["verifiedContracts"] = verifiedContracts;
-  response.write(JSON.stringify(data));
-  response.end();
+  
 }
 
 

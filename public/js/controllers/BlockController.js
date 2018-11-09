@@ -11,12 +11,15 @@ angular.module('BlocksApp').controller('BlockController', function($stateParams,
     //fetch transactions
     $http({
       method: 'POST',
-      url: '/web3relay',
+      url: '/block',
       data: {"block": $scope.blockNum}
     }).success(function(data) {
       if (data.error)
         $location.path("/err404/block/" + $scope.blockNum);
       else {
+        // if(data.extraData && data.extraData.length>5){
+        //   data.extraData = data.extraData.charCodeAt(3)+"."+data.extraData.charCodeAt(4)+"."+data.extraData.charCodeAt(5);
+        // }
         $scope.block = data;
         $scope.block.datetime = new Date(data.timestamp*1000); 
       }

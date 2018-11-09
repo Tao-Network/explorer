@@ -36,6 +36,8 @@ module.exports = function(req, res){
       });
     } catch (e) {
       console.error(e);
+      res.write("[]");
+      res.end();
     }
   }else if(req.body.txHash){//transactions detail
     try{
@@ -48,6 +50,8 @@ module.exports = function(req, res){
       });
     } catch (e) {
       console.error(e);
+      res.write("[]");
+      res.end();
     }
   }
     

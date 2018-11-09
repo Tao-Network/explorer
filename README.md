@@ -20,30 +20,39 @@ Install mongodb:
 
 MacOS: `brew install mongodb`
 
+Centos: `yum install -y mongodb`
+
 Ubuntu: `sudo apt-get install -y mongodb-org`
+
+
+## config rpc
+
+open "routes/web3relay.js" and modify "HttpProvider" usually by "http://localhost:8545". 
+
 
 ## Populate the DB
 
 This will fetch and parse the entire blockchain.
 
-Configuration file: `/tools/config.json`
-
-Basic settings:
-```json
-{
-    "gethPort": 8545, 
-    "blocks": [ {"start": 2000000, "end": "latest"}],
-    "quiet": false,
-    "terminateAtExistingDB": true,
-    "listenOnly": false
-}
-```
+Configuration file: `/tools/grabber.js`
+modify the var "config" (near the file end) like follow basic settings:
+--------------
+var config = {
+    "rpc": 'http://localhost:8545',
+    "blocks": [ {"start": 0, "end": "latest"}],
+    "quiet": true,
+    "terminateAtExistingDB": false,
+    "listenOnly": true,
+    "out": "."
+};
+-------------
+```rpc``` etherzero rpc which your browser will grab data from
 
 ```blocks``` is a list of blocks to grab. It can be specified as a list of block numbers or an interval of block numbers. When specified as an interval, it will start at the ```end``` block and keep recording decreasing block numbers. 
 
 ```terminateAtExistingDB``` will terminate the block grabber once it gets to a block it has already stored in the DB.
 
-```quiet``` prints out the log of what it is doing.
+```quiet``` prints out the log of what it is doing. currently not use
 
 ```listenOnly``` When true, the grabber will create a filter to receive the latest blocks from geth as they arrive. It will <b>not</b> continue to populate older block numbers. 
 
@@ -57,8 +66,4 @@ Basic settings:
 
 Leave this running in the background to continuously fetch new blocks.
 
-### Stats
 
-Tools for updating network stats are under development, but can be found in:
-
-`./tools/stats.js` 

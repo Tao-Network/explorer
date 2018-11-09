@@ -17,9 +17,37 @@ angular.module('BlocksApp').controller('HomeController', function($rootScope, $s
       }).success(function(data) {
         $scope.blockLoading = false;
         $scope.latest_blocks = data.blocks;
+
+        //get latest data
+        $scope.blockHeight = data.blockHeight;
+        $scope.blockTime = data.blockTime;
+        $scope.TPS = data.TPS;
+        $scope.meanDayRewards = data.meanDayRewards;
+      });
+
+      todayRewards();
+      totalNodes();
+    }
+
+    function todayRewards(){
+      $http({
+        method: 'POST',
+        url: '/todayRewards',
+        data: {}
+      }).success(function(data) {
+        $scope.todayRewards = data;
       });
     }
-    
+
+    function totalNodes(){
+      $http({
+        method: 'POST',
+        url: '/totalMasterNodes',
+        data: {}
+      }).success(function(data) {
+        $scope.totalNodes = data;
+      });
+    }
 
     $scope.reloadTransactions = function() {
       $scope.txLoading = true;

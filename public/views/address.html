@@ -2,21 +2,21 @@
 <div class="row">
     <div class="col-md-12 portlet light">
         <div class="portlet-title">
-          <div class="caption"><span ng-show="addr.isContract">Contract </span>Overview</div>
+          <div class="caption"><span ng-show="isContract">Contract </span>Overview</div>
         </div>
         <div class="portlet-body">
           <div class="row">
               <div class="col-md-6 center">
-                  <div ><span class="eth-stat-text"> ETZ Balance </span> {{ addr.balance | number: 10 }} <br> </div>
-                  <div ng-show="addr.isContract">
-                    <div class="margin-top-20"><span class="eth-stat-text">Transactions</span> {{ token.count }}</div>
+                  <div ><span class="eth-stat-text"> ETZ Balance </span> {{ addrBalance | number: 10 }} <br> </div>
+                  <div class="margin-top-20"><span class="eth-stat-text">Transactions</span> {{ count }}</div>
+                  <div ng-show="isContract">
                     <div class="margin-top-20" ng-show="token.isVerified"><span class="eth-stat-text">Contract name </span> <a href="/token/{{token.address}}">{{token.name}}</a></div>
                     <div class="margin-top-20" ng-show="token.isVerified"><span class="eth-stat-text">Contract verified √</span></div>
                     <div class="margin-top-20" ng-show="!token.isVerified"><span class="eth-stat-text">not verified  <a href="/verifycontract/{{token.address}}">[go for verifying]</a></div>
                   </div>
               </div>
 
-              <div class="col-md-6 center" ng-show="addr.isContract">
+              <div class="col-md-6 center" ng-show="isContract">
                 <div class="portlet">
                   <div class="portlet-body">
                     <!--span class='btn blue-madison' ng-show="!isFollowing(token.ash)" ng-click="follow(token.ash)">WATCH <i class="fa fa-rss "></i></span>
@@ -38,8 +38,6 @@
         </div><!--end row-->
       </div><!--end portlet-body-->
 
-      
-
     </div><!--end portlet-->
   
     <!-- Begin: Transaction Datatable -->
@@ -50,10 +48,10 @@
                 <li ng-class="{active: activeTab == 'tab_addr_1' || !activeTab}">
                     <a href="#tab_addr_1" data-toggle="tab" aria-expanded="true"> All Transactions </a>
                 </li>
-                <li ng-class="{active: activeTab == 'tab_addr_2'}" ng-show="addr.isContract" ng-click="internalTransaction(0)">
+                <li ng-class="{active: activeTab == 'tab_addr_2'}" ng-show="isContract" ng-click="internalTransaction(0)">
                     <a href="#tab_addr_2" data-toggle="tab" aria-expanded="false"> Internal Transactions </a>
                 </li>
-                <li class="" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_3'}">
+                <li class="" ng-show="isContract" ng-class="{active: activeTab == 'tab_addr_3'}">
                     <a href="#tab_addr_3" data-toggle="tab" aria-expanded="false"> Contract Source </a>
                 </li>
             </ul>
@@ -76,8 +74,8 @@
                 </table>
               </div><!-- End: Datatable tab -->
 
-              <!--div class="tab-pane" id="tab_addr_2" ng-show="addr.isContract" ng-class="{active: activeTab == 'tab_addr_2'}">
-                <table class="table table-condensed" ng-show="addr.isContract">
+              <!--div class="tab-pane" id="tab_addr_2" ng-show="isContract" ng-class="{active: activeTab == 'tab_addr_2'}">
+                <table class="table table-condensed" ng-show="isContract">
                   <thead>
                       <tr>
                           <th width="15%"> TxHash </th>
@@ -109,25 +107,27 @@
                         <thead>
                             <tr>
                                 <th> TxHash </th>
-                                <th> Age </th>
                                 <th> Block </th>
                                 <th> From </th>
                                 <th> To </th>
-                                <th style="text-align:right"> Amount </th>
-                                <th>type</th>
+                                <th> ETZ </th>
+                                <th> Age </th>
+                                <!--th style="text-align:right"> Amount </th>
+                                <th>type</th-->
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="t in internalDatas track by $index">
-                                <td class="truncate-txhash"><span ng-show="tx.status==0" alt="transaction fail"><font color="#ff0000">  ！ </font></span> <a href="/tx/{{t.transactionHash}}?isTransfer=true">{{t.transactionHash}}</a> </td>
-                                <td>{{t.timestamp | timeDuration}} ago</td>
+                                <td class="truncate-txhash"><span ng-show="tx.status==0" alt="transaction fail"><image src="img/FAIL.png"/></span> <a href="/tx/{{t.hash}}?isTransfer=true">{{t.hash}}</a> </td>
                                 <td> <a href="/block/{{t.blockNumber}}">{{t.blockNumber}}</a> </td>
                                 <td ng-show="acc==t.from" class="truncate-addrhash">{{t.from}} </td>
                                 <td ng-show="acc!=t.from" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.from}}">{{t.from}}</a> </td>
                                 <td ng-show="acc==t.to" class="truncate-addrhash"> {{t.to}} </td>
                                 <td ng-show="acc!=t.to" class="truncate-addrhash"> <a href="/tokenAcc/{{token.address}}{{t.to}}">{{t.to}}</a> </td>
-                                <td style="text-align:right"> {{t.amount}} </td>
-                                <td style="text-align:center"><span class="label label-sm label-info"> {{t.methodName}} </span></td>
+                                <td>{{t.value}}</td>
+                                <td>{{t.timestamp | timeDuration}}</td>
+                                <!--td style="text-align:right"> {{t.amount}} </td>
+                                <td style="text-align:center"><span class="label label-sm label-info" ng-show="t.methodName=='Transfer'"> {{t.methodName}} </span><span  ng-show="t.methodName!='Transfer'"> {{t.methodName}} </span></td-->
                             </tr>
                         </tbody>
                     </table>
@@ -142,9 +142,11 @@
                   </div>
               </div><!-- end Internal txs Tab -->
 
-              <div class="tab-pane" ng-class="{active: activeTab == 'tab_addr_3'}" id="tab_addr_3">
+              <div class="tab-pane" ng-show="isContract" ng-class="{active: activeTab == 'tab_addr_3'}" id="tab_addr_3">
                 <contract-source></contract-source>
               </div>
+
+              
 
             </div>
           </div>

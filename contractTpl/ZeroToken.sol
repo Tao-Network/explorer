@@ -114,7 +114,7 @@ contract ZeroToken is ERC20Interface, Owned {
     // Total supply
     // ------------------------------------------------------------------------
     function totalSupply() public constant returns (uint) {
-        return sub(_totalSupply,balances[address(0)]);
+        return _totalSupply.sub(balances[address(0)]);
     }
 
 
@@ -133,12 +133,12 @@ contract ZeroToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function transfer(address to, uint tokens) public returns (bool success) {
         if (balances[msg.sender] >= tokens && tokens > 0) {//应该判断余额是否足够，不够则throw
-              balances[msg.sender] = sub(balances[msg.sender], tokens);
-              balances[to] = add(balances[to], tokens);
-              Transfer(msg.sender, to, tokens);
-              return true;
+            balances[msg.sender] = balances[msg.sender].sub(tokens);
+            balances[to] = balances[to].add(tokens);
+            Transfer(msg.sender, to, tokens);
+            return true;
           } else {
-              return false;
+            return false;
           }
     }
 

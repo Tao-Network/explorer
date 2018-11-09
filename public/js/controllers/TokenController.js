@@ -85,8 +85,8 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
     $scope.internalTransaction=function(internalPage) {
       $http({
         method: 'POST',
-        url: '/internalTX',
-        data: {"action": "tokenTransfer", "address": address, "internalPage":internalPage, 'fromAccount':$scope.acc}
+        url: '/transactionRelay',
+        data: {"action": "internalTX", "address": address, "internalPage":internalPage, 'fromAccount':$scope.acc}
       }).success(function(repData) {
         repData.forEach(function(record){
           record.amount = record.amount/10**parseInt($scope.token.decimals);
@@ -95,18 +95,18 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
       });
     }
     
-    $scope.transactionPage = 0;
-    $scope.contractTransaction=function(transactionPage) {
-      console.log("【request】 contractTransaction");
-      $http({
-        method: 'POST',
-        url: '/tokenrelay',
-        data: {"action": "contractTransaction", "address": address, 'fromAccount':$scope.acc, "transactionPage":transactionPage}
-      }).success(function(repData) {
-        console.log("contractTransaction:", repData);
-        $scope.contractTxList = repData;
-      });
-    }
+    // $scope.transactionPage = 0;
+    // $scope.contractTransaction=function(transactionPage) {
+    //   $http({
+    //     method: 'POST',
+    //     url: '/transactionRelay',
+    //     data: {"action": "allTX", "address": address, 'fromAccount':$scope.acc, "transactionPage":transactionPage}
+    //   }).success(function(repData) {
+    //     $scope.contractTxList = repData;
+    //   });
+    // }
+    //fetch all transactions
+    
 
     
 })

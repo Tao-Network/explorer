@@ -10,39 +10,53 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
     $rootScope.$state.current.data["pageSubTitle"] = $stateParams.hash;
     $scope.addrHash = $stateParams.hash;
     $scope.addr = {"balance": 0, "count": 0};
-
-    //fetch web3 stuff
+    
+    //get address balance
     $http({
       method: 'POST',
       url: '/web3relay',
-      data: {"addr": $scope.addrHash, "options": ["balance", "count", "bytecode"]}
+      //data: {"addr": $scope.addrHash, "options": ["balance", "count", "bytecode"]}
+      data: {"addr": $scope.addrHash, "options": ["balance"]}
     }).success(function(data) {
-      $scope.addr = data;
-      fetchTxs($scope.addr.count);
-      if (data.isContract) {
+      $scope.addrBalance = data.balance;
+    });
+
+    //transacton counts
+    $http({
+      method: 'POST',
+      url: '/addrTXcounts',
+      //data: {"addr": $scope.addrHash, "options": ["balance", "count", "bytecode"]}
+      data: {"address": $scope.addrHash}
+    }).success(function(data) {
+      $scope.count = data.count;
+      fetchTxs(1);
+    });
+
+    //try to get contract info
+    $http({
+      method: 'POST',
+      url: '/tokenrelay',
+      data: {"action": "info", "address": $scope.addrHash}
+    }).success(function(tokenData) {
+      //fetchInternalTxs();
+      if(tokenData){
         $rootScope.$state.current.data["pageTitle"] = "Contract Address";
-        //fetchInternalTxs();
-        $http({
-          method: 'POST',
-          url: '/tokenrelay',
-          data: {"action": "info", "address": $scope.addrHash}
-        }).success(function(tokenData) {
-          $scope.token = tokenData;
-          $scope.token.address = $scope.addrHash;
-        });
+        if(tokenData.creator)
+          $scope.isContract = true;
+        $scope.token = tokenData;
       }
     });
 
     // fetch ethf balance 
-    $http({
-      method: 'POST',
-      url: '/fiat',
-      data: {"addr": $scope.addrHash}
-    }).success(function(data) {
-      $scope.addr.ethfiat = data.balance;
-    });
+    // $http({
+    //   method: 'POST',
+    //   url: '/fiat',
+    //   data: {"addr": $scope.addrHash}
+    // }).success(function(data) {
+    //   $scope.addr.ethfiat = data.balance;
+    // });
 
-    //fetch transactions
+    //fetch all transactions
     var fetchTxs = function(count) {
       $("#table_txs").DataTable({
         processing: true,
@@ -51,7 +65,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
         ajax: {
           url: '/addr',
           type: 'POST',
-          data: { "addr": $scope.addrHash, "count": count }
+          data: { "addr": $scope.addrHash, "count": count, "totalTX":$scope.count}
         },
         "lengthMenu": [
                     [10, 20, 50, 100, 150, -1],
@@ -64,7 +78,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
         "language": {
           "lengthMenu": "_MENU_ transactions",
           "zeroRecords": "No transactions found",
-          "infoEmpty": ":(",
+          "infoEmpty": "No transactions found",
           "infoFiltered": "(filtered from _MAX_ total txs)"
         },
         "columnDefs": [ 
@@ -82,7 +96,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
                       }, "targets": [1]},
           { "render": function(data, type, row) {
                         if(row[7]==0)
-                          return '<span ng-show="false"  alt="transaction fail"><font color="#ff0000">  ！ </font></span>'+'<a href="/tx/'+data+'">'+data+'</a>'
+                          return '<span ng-show="false"  alt="transaction fail"><image src="img/FAIL.png"/></span>'+'<a href="/tx/'+data+'">'+data+'</a>'
                         else
                           return '<a href="/tx/'+data+'">'+data+'</a>'
                       }, "targets": [0]},
@@ -92,21 +106,27 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
           ]
       });
     }
-
     
+
     $scope.internalPage = 0;
     $scope.internalTransaction=function(internalPage) {
       $http({
         method: 'POST',
-        url: '/internalTX',
-        data: {"action": "tokenTransfer", "address": $scope.addrHash, "internalPage":internalPage, 'fromAccount':$scope.acc}
+        url: '/transactionRelay',
+        data: {"action": "internalTX", "address": $scope.addrHash, "internalPage":internalPage, 'fromAccount':$scope.acc}
       }).success(function(repData) {
         repData.forEach(function(record){
-          record.amount = record.amount/10**parseInt($scope.token.decimals);
+          var decimals = parseInt($scope.token.decimals);
+          if(isNAN(decimals))
+            record.amount = record.amount;
+          else
+            record.amount = record.amount/(10**decimals);
         })
         $scope.internalDatas = repData;
       });
     }
+
+    
    
 })
 
@@ -123,7 +143,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
           url: '/compile',
           data: {"addr": scope.addrHash, "action": "find"}
         }).success(function(data) {
-          console.log(data);
+          // console.log(data);
           scope.contract = data;
         });
       }

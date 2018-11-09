@@ -27,15 +27,15 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
         $scope.getLogs();
     });
 
-    var fetchInternalTxs = function() {
-      $http({
-        method: 'POST',
-        url: '/web3relay',
-        data: {"tx_trace": $scope.hash}
-      }).success(function(data) {
-        $scope.internal_transactions = data;
-      });      
-    }
+    // var fetchInternalTxs = function() {
+    //   $http({
+    //     method: 'POST',
+    //     url: '/web3relay',
+    //     data: {"tx_trace": $scope.hash}
+    //   }).success(function(data) {
+    //     $scope.internal_transactions = data;
+    //   });      
+    // }
 
     $scope.getLogs = function() {
       if($scope.logs){
@@ -43,32 +43,32 @@ angular.module('BlocksApp').controller('TxController', function($stateParams, $r
       }
       $http({
         method: 'POST',
-        url: '/internalTX',
+        url: '/eventLog',
         data: {"txHash": $scope.hash}
       }).success(function(data) {
         $scope.logs = data;
-        for(var i=0; i<$scope.logs.length; i++){
-          $scope.logs[i].params = splitParam($scope.logs[i].to);
-        }
+        // for(var i=0; i<$scope.logs.length; i++){
+        //   $scope.logs[i].params = splitParam($scope.logs[i].to);
+        // }
         
       });      
     }
 
-    var splitParam = function(paramsStr){
-      var params = [];
-      var step = 0;
-      var addNum;
-      for(var i=0; i<paramsStr.length; i=i+addNum){
-        if(i==0){
-          params.push(paramsStr.substr(0, 10));
-          addNum=10;
-        }
-        else{
-          params.push(paramsStr.substr(10+(step-1)*64, 64));
-          addNum=64;
-        }
-        step++;
-      }
-      return params;
-    }
+    // var splitParam = function(paramsStr){
+    //   var params = [];
+    //   var step = 0;
+    //   var addNum;
+    //   for(var i=0; i<paramsStr.length; i=i+addNum){
+    //     if(i==0){
+    //       params.push(paramsStr.substr(0, 10));
+    //       addNum=10;
+    //     }
+    //     else{
+    //       params.push(paramsStr.substr(10+(step-1)*64, 64));
+    //       addNum=64;
+    //     }
+    //     step++;
+    //   }
+    //   return params;
+    // }
 })

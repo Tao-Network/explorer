@@ -1,3 +1,108 @@
+<span style="margin-top:10px;" class="caption-subject font-red bold uppercase">COMMON STATISTICS</span>
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <!--div class="icon">
+            <i class="fa fa-cube"></i>
+        </div-->
+        <div class="dashboard-stat2 ">
+            <div class="display">
+                <div class="number">
+                    <h3>
+                    {{blockHeight}}
+                    </h3>
+                    <small>Block Height</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <!--div class="icon">
+            <i class="fa fa-hourglass-half"></i>
+        </div-->
+        <div class="dashboard-stat2 ">
+            <div class="display">
+                <div class="number">
+                    <h3>
+                        {{blockTime}} <small>s</small>
+                    </h3>
+                    <small>Block Time</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2 ">
+            <div class="icon">
+                <i class="fa fa-tachometer"></i>
+            </div>
+            <div class="display">
+                <div class="number">
+                    <h3>
+                        {{hashRate}} <small>H/s</small>
+                    </h3>
+                    <small>Network Hashrate</small>
+                </div>
+            </div>
+        </div>
+    </div-->
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2 ">
+            <!--div class="icon">
+                <i class="icon-puzzle"></i>
+            </div-->
+            <div class="display">
+                <div class="number">
+                    <h3>
+                    {{TPS}} <small>t/s</small>
+                    </h3>
+                    <small>TPS</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr style="margin-top:10px;margin-bottom:10px;">
+
+<span style="margin-top:10px;" class="caption-subject font-red bold uppercase">MASTER NODE RELAY</span>
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2 ">
+            <div class="display">
+                <div class="number">
+                    <h3>{{meanDayRewards}}</h3>
+                    <small>Mean Day Rewards</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2 ">
+            <div class="display">
+                <div class="number">
+                    <h3>{{todayRewards}}</h3>
+                    <small>Today Rewards</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2 ">
+            <div class="display">
+                <div class="number">
+                    <h3>{{totalNodes}}</h3>
+                    <small>Total Master Nodes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
 <div class="row">
     <div class="col-md-6 col-sm-6">
         <!-- BEGIN PORTLET-->
@@ -9,8 +114,7 @@
                 </div>
                 <div class="actions">
                     <div class="btn-group">
-                        <a class="btn btn-med" ng-click="reloadBlocks()"><i class="fa fa-refresh" ng-class="{'fa-spin': blockLoading}"></i>
-                        </a>
+                        <a class="btn btn-med" ng-click="reloadBlocks()">refresh ↑↓</a>
                     </div>
                 </div>
             </div>
@@ -26,7 +130,7 @@
                         <div class="todo-tasklist-controls col-sm-7">
                             <div class="todo-tasklist-item-text"><a href="/addr/{{t.miner}}">{{t.extraData}}</a><br>
                             by <a href="/addr/{{t.miner}}">{{t.miner}}</a><br>
-                            {{t.transactions.length}} txns
+                            transactions: {{t.txs.length}}
                             </div>
                         </div>
                     </div>
@@ -45,8 +149,7 @@
                 </div>
                 <div class="actions">
                     <div class="btn-group">
-                        <a class="btn btn-med" ng-click="reloadTransactions()"><i class="fa fa-refresh" ng-class="{'fa-spin': txLoading}"></i>
-                        </a>
+                        <a class="btn btn-med" ng-click="reloadTransactions()">refresh ↑↓</a>
                     </div>
                 </div>                    
             </div>
@@ -57,7 +160,7 @@
                         <div class="truncate-txhash" style="float:left">
                             TX <a href="/tx/{{t.hash}}" class="primary-link">{{t.hash}}</a>
                         </div>
-                        <div class="item-date" style="float:right"><span ng-show="tx.status==0"  alt="transaction fail"><font color="#ff0000">  ！ </font></span> {{t.timestamp | timeDuration }} ago</div>
+                        <div class="item-date" style="float:right"><span ng-show="tx.status==0"  alt="transaction fail"><image src="img/FAIL.png"/></span> {{t.timestamp | timeDuration }} ago</div>
                     </div>
                     <div class="todo-tasklist-controls"> 
                       <span class="todo-tasklist-item-text">From <a href="/addr/{{t.from}}">{{t.from.substr(0,24)}}...</a></span> 

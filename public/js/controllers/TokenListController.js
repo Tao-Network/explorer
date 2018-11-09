@@ -5,11 +5,12 @@ angular.module('BlocksApp').controller('TokenListController', function($statePar
     });
 
     $scope.page = 0;
+    var totalPage = 0;
     $scope.getInfoList=function(page) {
       $http({
         method: 'POST',
         url: '/tokenListData',
-        data: {"ERC": 0, "page":page}
+        data: {"ERC": 0, "page":page, "totalPage":totalPage}
       }).success(function(repData) {
         $scope.page = repData.page;
         var pages = [];
@@ -17,6 +18,7 @@ angular.module('BlocksApp').controller('TokenListController', function($statePar
           pages.push(i+1);
         }
         $scope.pages = pages;
+        totalPage = repData.totalPage;
         $scope.totalPage = repData.totalPage;
         $scope.contracts = repData.list;
       });

@@ -18,28 +18,30 @@
                     <tr ><td width="25%">TxReceipt Status:</td><td>
                         <span ng-show="tx.status==0"  alt="transaction fail"><font color="#ff0000"> Fail (Error encountered during transaction !)</font></span>
                         <span ng-show="!(tx.status==0) && tx.blockNumber" ><font color="#00ff00"> Success </font></span>
-                        <span ng-show="tx.blockNumber==null" ><font color="#00ff00"><font color="#0000ff">pending</font></font></span>
+                        <span ng-show="tx.hash && tx.blockNumber==null" ><font color="#00ff00"><font color="#0000ff">Pending</font></font></span>
+                        <span ng-show="!tx.hash"  alt="transaction fail"><font color="#ff0000"> Not exist</font></span>
                     </td>
                     </tr>
-                    <tr ><td width="25%">blockNumber:</td>
+                    <tr ><td width="25%">Block Number:</td>
                         <td><a href="/block/{{tx.blockNumber}}">{{tx.blockNumber}}</a></td>
                     </tr>
                     <tr ><td width="25%">Time:</td>
                         <td>{{tx.datetime | date:'yyyy-MM-dd HH:mm:ss Z' }} ({{tx.timestamp | timeDuration}} ago)</td>
                     </tr>
-                    <tr ><td width="25%">from:</td>
+                    <tr ><td width="25%">From:</td>
                         <td><a href="/addr/{{tx.from}}">{{tx.from}}</a></td></tr>
-                    <tr ng-show="tx.to"><td width="25%">to:</td><td><a href="/addr/{{tx.to}}">{{tx.to}}</a></td></tr>
-                    <tr ng-show="tx.createContract"><td width="25%">create contract: </td><td><a href="/addr/{{tx.createContract}}">{{tx.createContract}}</a></td></tr>  
+                    <tr ng-show="tx.to"><td width="25%">To:</td><td><a href="/addr/{{tx.to}}">{{tx.to}}</a></td></tr>
+                    <tr ng-show="tx.createContract"><td width="25%">Create Contract: </td><td><a href="/addr/{{tx.createContract}}">{{tx.createContract}}</a></td></tr>  
                     <tr ng-show="tx.tokenName"><td width="25%">{{tx.contractLable}}:</td><td><a href="/{{tx.contractLink}}">{{tx.tokenName}}</a></td></tr>  
-                    <tr ng-show="tx.needVerify"><td width="25%">verify</td><td><a href="/verifycontract/{{tx.contractAddr}}">click here to verify your contract</a></td></tr> 
+                    <tr ng-show="tx.needVerify"><td width="25%">Verify</td><td><a href="/verifycontract/{{tx.contractAddr}}">click here to verify your contract</a></td></tr> 
                     <!--tr ng-show="tx.ERC"><td width="25%">ERC</td><td>{{tx.ERC}}</td></tr--> 
-                    <tr ng-show="tx.isTransfer"><td width="25%">Token Transfer:</td><td>{{tx.tokenNum}} <a href="/token/{{tx.contractAddr}}">{{tx.tokenName}}</a>   from <a href="/addr/{{tx.from}}">{{tx.from.substr(0,20)}}...</a>  to <a href="/addr/{{tx.to}}">{{tx.to.substr(0,20)}}...</a></td></tr>
-                    <tr ><td width="25%">value:</td><td>{{tx.value}} ETZ</td></tr>
-                    <tr ><td width="25%">gas Provided:</td><td>{{tx.gas}}</td></tr>
-                    <tr ><td width="25%">gasPrice:</td><td>{{tx.gasPrice}}</td></tr>
-                    <tr ><td width="25%">gasUsed:</td><td>{{tx.gasUsed}}</td></tr>
-                    <tr ><td width="25%">nonce:</td><td>{{tx.nonce}}</td></tr>
+                    <tr ng-show="tx.isTransfer"><td width="25%">Token Transfer:</td><td>{{tx.tokenNum}} <a href="/token/{{tx.contractAddr}}">{{tx.tokenName}}</a>   from <a href="/addr/{{tx.from}}">{{tx.from.substr(0,24)}}...</a>  to <a href="/addr/{{tx.to}}">{{tx.transerTo.substr(0,24)}}...</a></td></tr>
+                    <tr ><td width="25%">Value:</td><td>{{tx.value}} ETZ</td></tr>
+                    <tr ><td width="25%">Gas Provided:</td><td>{{tx.gas}}</td></tr>
+                    <tr ><td width="25%">GasPrice:</td><td>{{tx.gasPrice}}</td></tr>
+                    <tr ><td width="25%">GasUsed:</td><td>{{tx.gasUsed}}</td></tr>
+                    <tr ><td width="25%">Nonce:</td><td>{{tx.nonce}}</td></tr>
+                    <tr ><td width="25%">Masternode:</td><td><a href="/masternode/{{tx.witness}}">{{tx.witness}}</a></td></tr>
                     <tr ><td width="25%">Input Data:</td><td><pre class="code">{{tx.input}}</pre></td></tr>
                 </table>
                 <table class="table table-condensed" ng-show="tx.isTrace">
@@ -78,16 +80,19 @@
                 </div-->
                 <table><tbody ng-repeat="log in logs">
                     <tr><td width="20%"><b>[{{$index}}]Address </b></td><td><a href="/addr/">{{log.transactionHash}}</a></td></tr>
-                    <tr ng-show="log.methodName!=null"><td width="20%">Method</td><td>{{log.methodName}}()</td></tr>
-                    <tr><td width="20%">Data</td>
+                    <tr ng-show="log.methodName!=null"><td width="20%">Method: </td><td>{{log.methodName}}()</td></tr>
+                    <tr ng-show="log.eventName!=null && log.eventName!=''"><td width="20%">Event: </td><td>{{log.eventName}}</td></tr>
+                    <tr><td width="20%">topics:</td>
                         <td>
-                            <table><tbody><tr ng-repeat="param in log.params">
-                                <td ng-show="$index==0">(methodCode){{param}}</td>
-                                <td ng-show="$index>0">[param]{{param}}</td>
+                            <table><tbody><tr ng-repeat="topic in log.topics">
+                                <td ng-show="$index>-1">[topic{{$index}}]{{topic}}</td>
                             </tr></tbody></table>
                         </td>
                     </tr>
-                    <tr><td width="20%"></td><td></td></tr>
+                    <tr><td width="20%">data:</td>
+                        <td>{{log.data}}</td>
+                    </tr>
+                    <tr><td width="20%"></td><td><br></td></tr>
                 </tbody></table>
 
             </div>

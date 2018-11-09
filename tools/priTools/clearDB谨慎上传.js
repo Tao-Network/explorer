@@ -3,15 +3,17 @@ require( '../../db.js' );
 var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
+var LogEvent = mongoose.model('LogEvent');
 Block = mongoose.model('Block');
 Contract = mongoose.model('Contract');
 TokenTransfer = mongoose.model('TokenTransfer');
 
 //全部清除
-// Transaction.collection.remove();
-TokenTransfer.collection.remove();
-Contract.collection.remove();
-// Block.collection.remove();
+// Transaction.collection.remove({"blockNumber":{$gt:6114230}});
+// TokenTransfer.collection.remove();
+// Contract.collection.remove();
+// Block.collection.remove({"number":{$gt:6114230}});
+// LogEvent.collection.remove();
 
 //删除指定Transaction
 // Transaction.collection.deleteOne({'hash':'0x30c0291c1d311360fe778544d1cabc0b6547cac6bc8d9b200793713bea168bed'},function(err){console.log(err)});

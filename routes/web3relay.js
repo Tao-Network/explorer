@@ -19,7 +19,10 @@ if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+  // web3 = new Web3(new Web3.providers.HttpProvider("http://13.115.55.39:9646"));
+  // web3 = new Web3(new Web3.providers.HttpProvider("http://etzrpc.org:80"));
 }
+
 
 if (web3.isConnected()) 
   console.log("Web3 connection established");
@@ -27,14 +30,44 @@ else
   throw "No connection";
 
 
-var newBlocks = web3.eth.filter("latest");
-var newTxs = web3.eth.filter("pending");
+// var newBlocks = web3.eth.filter("latest");
+// var newTxs = web3.eth.filter("pending");
+exports.getTX = function(txHash){
+  if(!txHash)
+    return null;
+  if(txHash.indexOf('0x')!=0){
+    txHash = "0x"+txHash;
+  }
+  var txData;
+  try{
+    txData = web3.eth.getTransaction(txHash);
+  }catch(err){
+    console.log("getTX err: ", err);
+    txData = {};
+  }
+  return txData;
+}
+
+exports.getBlock = function(blockNumber){
+  if(isNaN(blockNumber) || !blockNumber){
+    return null;
+  }
+  var blockData;
+  try{
+    blockData = web3.eth.getBlock(blockNumber);
+  }catch(err){
+    console.log("getBlock err:", err);
+  }
+  return blockData;
+}
 
 exports.data = function(req, res){
-  console.log(req.body)
-
+  //console.log("web3relay data :"+req.client.remoteAddress+":"+req.client.remotePort);
+  
   if ("tx" in req.body) {
     var txHash = req.body.tx.toLowerCase();
+    if(txHash.indexOf('0x')!=0)
+      txHash = '0x'+txHash;
 
     web3.eth.getTransaction(txHash, function(err, tx) {
       if(err || !tx) {
@@ -58,7 +91,6 @@ exports.data = function(req, res){
 
   } else if ("tx_trace" in req.body) {
     var txHash = req.body.tx_trace.toLowerCase();
-
     web3.trace.transaction(txHash, function(err, tx) {
       if(err || !tx) {
         console.error("TraceWeb3 error :" + err)
@@ -120,12 +152,15 @@ exports.data = function(req, res){
       }
     }
     if (options.indexOf("count") > -1) {
-      try {
-         addrData["count"] = web3.eth.getTransactionCount(addr);
-      } catch (err) {
-        console.error("AddrWeb3 error :" + err);
-        addrData = {"error": true};
-      }
+      // 'count' calculating is turned to db 
+      // try {
+      //    addrData["count"] = web3.eth.getTransactionCount(addr);
+      //    console.log("count:"+addrData["count"]);
+      // } catch (err) {
+      //   console.error("AddrWeb3 error :" + err);
+      //   addrData = {"error": true};
+      // }
+      addrData["count"] = 1;
     }
     
    
@@ -134,21 +169,24 @@ exports.data = function(req, res){
 
 
   } else if ("block" in req.body) {
-    var blockNum = parseInt(req.body.block);
-
+    var blockNum = req.body.block;
     web3.eth.getBlock(blockNum, function(err, block) {
-      if(err || !block) {
+      if(err) {
         console.error("BlockWeb3 error :" + err)
         res.write(JSON.stringify({"error": true}));
-      } else {
-        res.write(JSON.stringify(filterBlocks(block)));
+      }else if(!block){
+        res.write(JSON.stringify({}));
+      }else {
+        block = filterBlocks(block);
+        res.write(JSON.stringify(block));
       }
       res.end();
     });
 
   } else {
-    console.error("Invalid Request: " + action)
+    console.error("Invalid Request: " + req.body)
     res.status(400).send();
+    res.end();
   }
 
 };

@@ -63,6 +63,13 @@ BlocksApp.controller('HeaderController', ['$scope', '$location', function($scope
         $scope.form.searchForm.$setUntouched();
         if (isAddress(search)) 
             $location.path("/addr/" + search);
+        else if(search.length==16)//master node address
+            $location.path("/masternode/" + search);
+        else if(search.length==18){//master node address
+            if(search.indexOf("0x")==0){
+                $location.path("/masternode/" + search.substr(2));
+            }
+        }
         else if (isTransaction(search))
             $location.path("/tx/" + search);
         else if (!isNaN(search))
@@ -90,7 +97,7 @@ BlocksApp.controller('FooterController', ['$scope', function($scope) {
 /* Setup Rounting For All Pages */
 BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     // Redirect any unmatched url
-    $urlRouterProvider.otherwise("home");  
+    $urlRouterProvider.otherwise("home");
     
     $stateProvider
 
@@ -207,42 +214,42 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
                 }]
             }
         })
-        .state('stats', {
-            url: "/stats/{chart}",
-            templateUrl: "views/stats/index.html",
-            data: {pageTitle: 'Transaction'},
-            controller: "StatsController",
-            resolve: {
-                deps: ['$ocLazyLoad', '$stateParams', function($ocLazyLoad, $stateParams) {
-                    var bundle = '/js/stats/bundle_';
+        // .state('stats', {
+        //     url: "/stats/{chart}",
+        //     templateUrl: "views/stats/index.html",
+        //     data: {pageTitle: 'Transaction'},
+        //     controller: "StatsController",
+        //     resolve: {
+        //         deps: ['$ocLazyLoad', '$stateParams', function($ocLazyLoad, $stateParams) {
+        //             var bundle = '/js/stats/bundle_';
 
-                    switch ($stateParams.chart) {
-                        case "etc_hashrate":
-                            bundle = bundle + "hashrate.js";
-                            break;
-                        case "miner_hashrate":
-                            bundle = bundle + "hashrate_distribution.js";
-                            break;
+        //             switch ($stateParams.chart) {
+        //                 case "etc_hashrate":
+        //                     bundle = bundle + "hashrate.js";
+        //                     break;
+        //                 case "miner_hashrate":
+        //                     bundle = bundle + "hashrate_distribution.js";
+        //                     break;
 
-                        case "The_bomb_chart":
-                            bundle = bundle + "The_bomb_chart_with_ECIP_1010.js";
-                            break;
+        //                 case "The_bomb_chart":
+        //                     bundle = bundle + "The_bomb_chart_with_ECIP_1010.js";
+        //                     break;
 
-                    }
+        //             }
 
-                    return $ocLazyLoad.load({
-                        insertBefore: '#ng_load_plugins_before', // load the above css files before '#ng_load_plugins_before'
-                        files: [
-                             '/js/controllers/StatsController.js',
-                             '/css/stats.css',
-                             "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.10/d3.js",
-                             "/plugins/async.min.js",
-                             bundle
-                        ]
-                    });
-                }]
-            }
-        })
+        //             return $ocLazyLoad.load({
+        //                 insertBefore: '#ng_load_plugins_before', // load the above css files before '#ng_load_plugins_before'
+        //                 files: [
+        //                      '/js/controllers/StatsController.js',
+        //                      '/css/stats.css',
+        //                      "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.10/d3.js",
+        //                      "/plugins/async.min.js",
+        //                      bundle
+        //                 ]
+        //             });
+        //         }]
+        //     }
+        // })
         .state('tokenlist', {
             url: "/tokenlist",
             templateUrl: "views/tokenlist.html",
@@ -314,6 +321,57 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
             }
         })
 
+        .state('masternode', {
+            url: "/masternode/{witness}",
+            templateUrl: "views/witness.html",
+            data: {pageTitle: 'Masternode'},
+            controller: "WitnessController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/WitnessController.js'
+                        ]
+                    });
+                }]
+            }
+        })
+        .state('masternodeList', {
+            url: "/masternodeList",
+            templateUrl: "views/witnessList.html",
+            data: {pageTitle: 'Masternode List'},
+            controller: "WitnessListController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/WitnessListController.js'
+                        ]
+                    });
+                }]
+            }
+        })
+        .state('publicAPIDoc', {
+            url: "/publicAPIDoc",
+            templateUrl: "views/publicAPIDoc.html",
+            data: {pageTitle: 'Public API Document'},
+            controller: "PublicAPIDocController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/PublicAPIDocController.js'
+                        ]
+                    });
+                }]
+            }
+        })
         .state('dao', {
             url: "/dao",
             templateUrl: "views/dao.html",
@@ -326,6 +384,23 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
                         insertBefore: '#ng_load_plugins_before', 
                         files: [
                              '/js/controllers/DAOController.js'
+                        ]
+                    });
+                }]
+            }
+        })
+        .state('addressList', {
+            url: "/addressList/{type}",
+            templateUrl: "views/addressList.html",
+            data: {pageTitle: 'Address List'},
+            controller: "AddressListController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/AddressListController.js'
                         ]
                     });
                 }]

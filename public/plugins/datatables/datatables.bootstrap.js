@@ -150,8 +150,8 @@ $.extend($.fn.dataTableExt.oPagination, {
             $(nPaging).append(
                 '<ul class="pagination">' +
                 '<li class="prev disabled"><a href="#" title="' + oLang.sFirst + '"><i class="fa fa-angle-double-left"></i></a></li>' +
-                '<li class="prev disabled"><a href="#" title="' + oLang.sPrevious + '"><i class="fa fa-angle-left"></i></a></li>' +
-                '<li class="next disabled"><a href="#" title="' + oLang.sNext + '"><i class="fa fa-angle-right"></i></a></li>' +
+                '<li class="prev disabled"><a href="#" title="' + oLang.sPrevious + '"><<</a></li>' +
+                '<li class="next disabled"><a href="#" title="' + oLang.sNext + '">>></a></li>' +
                 '<li class="next disabled"><a href="#" title="' + oLang.sLast + '"><i class="fa fa-angle-double-right"></i></a></li>' +
                 '</ul>'
             );
@@ -244,8 +244,8 @@ $.extend($.fn.dataTableExt.oPagination, {
 
             $(nPaging).append(
                 '<ul class="pagination">' +
-                '<li class="prev disabled"><a href="#" title="' + oLang.sPrevious + '"><i class="fa fa-angle-left"></i></a></li>' +
-                '<li class="next disabled"><a href="#" title="' + oLang.sNext + '"><i class="fa fa-angle-right"></i></a></li>' +
+                '<li class="prev disabled"><a href="#" title="' + oLang.sPrevious + '"><<</a></li>' +
+                '<li class="next disabled"><a href="#" title="' + oLang.sNext + '">>></a></li>' +
                 '</ul>'
             );
             var els = $('a', nPaging);
@@ -333,9 +333,9 @@ $.extend($.fn.dataTableExt.oPagination, {
 
             $(nPaging).append(
                 '<div class="pagination-panel"> ' + (oLang.page ? oLang.page : '') + ' ' +
-                '<a href="#" class="btn btn-sm default prev disabled"><i class="fa fa-angle-left"></i></a>' +
+                '<a href="#" class="btn btn-sm default prev disabled"><<</a>' +
                 '<input type="text" class="pagination-panel-input form-control input-sm input-inline input-mini" maxlenght="5" style="text-align:center; margin: 0 5px;">' +
-                '<a href="#" class="btn btn-sm default next disabled"><i class="fa fa-angle-right"></i></a> ' +
+                '<a href="#" class="btn btn-sm default next disabled">>></a> ' +
                 (oLang.pageOf ? oLang.pageOf + ' <span class="pagination-panel-total"></span>': '') + 
                 '</div>'
             );

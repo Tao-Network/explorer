@@ -4,7 +4,9 @@
     Endpoint for client interface with ERC-20 tokens
 */
 
-
+var mongoose = require( 'mongoose' );
+var Transaction = mongoose.model( 'Transaction' );
+var Contract   = mongoose.model( 'Contract' );
 
 var BigNumber = require('bignumber.js');
 var etherUnits = require(__lib + "etherUnits.js")
@@ -59,98 +61,100 @@ module.exports = function(req, res){
   // console.log(req.body)
   var contractAddress = req.body.address;
   var fromAccount = req.body.fromAccount;
-  if (!("action" in req.body))
+  if (!("action" in req.body)){
     res.status(400).send();
-  else if (req.body.action=="info") {
+    res.end();
+  }else if (req.body.action=="info") {
     try {
       // createZeroTokenInstance();
-      var mongoose = require( 'mongoose' );
-      var Transaction = mongoose.model( 'Transaction' );
-      var mongoose = require( 'mongoose' );
-      var Contract   = mongoose.model( 'Contract' );
-      var tokenData;
-      var count = 0;
-      Transaction.count({'to':contractAddress}).exec().then(function(result){count = result});
-      var contractFind = Contract.findOne({address:contractAddress}).lean(true);
-      contractFind.exec(function(err, doc){
-        if(!err && doc){
-          var dbToken = doc;
-          tokenData = {
-            "balance": dbToken.balance,
-            "totalSupply": dbToken.totalSupply/10**dbToken.decimals,//dbToken.totalSupply.toEther(actualBalance, 'wei');
-            "tokenHolders": 2,//tt fix, wait to dev
-            "count": count,
-            "name": dbToken.tokenName,
-            "ERC":dbToken.ERC,
-            "symbol": dbToken.symbol,
-            "bytecode": dbToken.byteCode,
-            "transaction": dbToken.creationTransaction,
-            "creator": dbToken.owner,
-            "decimals": dbToken.decimals,
-            "isVerified":dbToken.sourceCode!=null
-          }
-          if(fromAccount){
-            var eth = require('./web3relay').eth;
-            var ContractStruct = eth.contract(ABI);
-            var TokenInst = ContractStruct.at(contractAddress);
-            tokenData.tokenNum = TokenInst.balanceOf(fromAccount);
-          }
-          res.write(JSON.stringify(tokenData));
-          res.end();
-        }else{//find from blockChain
-          var data ={};
-          var eth = require('./web3relay').eth;
-          var bytecode;
-          try{
-            data.balance = eth.getBalance(contractAddress);
-            bytecode = eth.getCode(contractAddress);
-          }catch(err){
-            console.log(err);
-          }
-          data.byteCode = bytecode;
-          var txFind = Transaction.findOne({'to':null, 'contractAddress':contractAddress}).lean(true);
-          txFind.exec(function (err, doc) {
-            if(!err && doc){
-              data.creationTransaction = doc.hash;
-              data.owner = doc.from;
-            }
+        var tokenData;
+        var contractFind = Contract.findOne({address:contractAddress}).lean(true);
+        contractFind.exec(function(err, doc){
+          if(!err && doc){
+            var dbToken = doc;
             tokenData = {
-              "balance": data.balance,
+              "balance": dbToken.balance,
+              "totalSupply": dbToken.totalSupply/10**dbToken.decimals,//dbToken.totalSupply.toEther(actualBalance, 'wei');
               "tokenHolders": 2,//tt fix, wait to dev
-              "count": count,
-              "transaction": data.creationTransaction,
-              "creator": data.owner,
-              "isVerified":false
+              "name": dbToken.tokenName,
+              "ERC":dbToken.ERC,
+              "symbol": dbToken.symbol,
+              "bytecode": dbToken.byteCode,
+              "transaction": dbToken.creationTransaction,
+              "creator": dbToken.owner,
+              "decimals": dbToken.decimals,
+              "isVerified":dbToken.sourceCode!=null,
+              "address":contractAddress
+            }
+            if(fromAccount){
+              var eth = require('./web3relay').eth;
+              var ContractStruct = eth.contract(ABI);
+              var TokenInst = ContractStruct.at(contractAddress);
+              tokenData.tokenNum = TokenInst.balanceOf(fromAccount);
             }
             res.write(JSON.stringify(tokenData));
             res.end();
-          })
-        }
-      })
-      
+          }else{//find from blockChain
+            res.write("");
+            res.end();
+
+            // var data ={};
+            // var eth = require('./web3relay').eth;
+            // var bytecode;
+            // try{
+            //   data.balance = eth.getBalance(contractAddress);
+            //   bytecode = eth.getCode(contractAddress);
+            // }catch(err){
+            //   console.log(err);
+            // }
+            // data.byteCode = bytecode;
+            // var txFind = Transaction.findOne({'to':null, 'contractAddress':contractAddress}).lean(true);
+            // txFind.exec(function (err, doc) {
+            //   if(!err && doc){
+            //     data.creationTransaction = doc.hash;
+            //     data.owner = doc.from;
+            //   }
+            //   tokenData = {
+            //     "balance": data.balance,
+            //     "tokenHolders": 2,//tt fix, wait to dev
+            //     "count": count,
+            //     "transaction": data.creationTransaction,
+            //     "creator": data.owner,
+            //     "isVerified":false,
+            //     "address":contractAddress
+            //   }
+            //   res.write(JSON.stringify(tokenData));
+            //   res.end();
+            // })
+          }
+        });
     } catch (e) {
       console.error(e);
+      res.write("");
+      res.end();
     }
+
   } else if (req.body.action=="balanceOf") {
     var eth = require('./web3relay').eth;
     var ContractStruct = eth.contract(ABI);
     var addr = req.body.user.toLowerCase();
+    var tokens = 0;
     try {
       var Token = ContractStruct.at(contractAddress);
-      var tokens = Token.balanceOf(addr);
+      tokens = Token.balanceOf(addr);
       tokens = tokens/10**Token.decimals().toNumber();
       // tokens = etherUnits.toEther(tokens, 'wei')*100;
-      res.write(JSON.stringify({"tokens": tokens}));
-      res.end();
+      
     } catch (e) {
       console.error(e);
     }
+    res.write(JSON.stringify({"tokens": tokens}));
+    res.end();
+
   } else if (req.body.action=="create") {//create token contract
-    try{
-      let zeroTokenInstance = createZeroTokenInstance();
-    } catch (e) {
-      console.error(e);
-    }
+    res.write("");
+    res.end();
+    
   }else if (req.body.action=="contractTransaction") {
     var respData = "";
     try{
@@ -164,12 +168,13 @@ module.exports = function(req, res){
       transactionFind = Transaction.find({to:req.body.address}).skip(transactionPage*10).limit(10).lean(true);
       transactionFind.exec(function (err, docs) {
       espData = JSON.stringify(docs);
-      res.write(espData);
-      res.end();
+      
       });
     } catch (e) {
       console.error(e);
     }
+    res.write(espData);
+    res.end();
     
   }else if(req.body.action=="tokenTransfer"){
     var respData = "";
@@ -179,21 +184,25 @@ module.exports = function(req, res){
       var TokenTransfer = mongoose.model( 'TokenTransfer' );
       var findCond;
       if(fromAccount){
-        findCond = {contractAdd:req.body.address, methodName:"Transfer", $or:[{"to": fromAccount}, {"from": fromAccount}]};
+        findCond = {contractAdd:req.body.address, $or:[{"to": fromAccount}, {"from": fromAccount}]};
       }else{
-        findCond = {contractAdd:req.body.address, methodName:"Transfer"};
+        findCond = {contractAdd:req.body.address};
       }
       if(transferPage<0)
           transferPage=0;
       tokenTransferFind = TokenTransfer.find(findCond).skip(transferPage*10).limit(10).lean(true);
       tokenTransferFind.exec(function (err, docs) {
       respData = JSON.stringify(docs);
-      res.write(respData);
-      res.end();
+      
       });
     } catch (e) {
       console.error(e);
     }
+    res.write(respData);
+    res.end();
+  }else{
+    res.write("");
+    res.end();
   }
   
 };  
