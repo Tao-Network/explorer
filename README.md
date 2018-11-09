@@ -42,7 +42,7 @@ var config = {
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,
-    "listenOnly": true,
+    "listenOnly": false,//false:graber interval. true:grabe by listen new block.
     "out": "."
 };
 -------------
@@ -62,7 +62,7 @@ var config = {
 
 ### Run:
 
-`node ./tools/grabber.js`
+`nohup node ./tools/grabber.js &`
 
 Leave this running in the background to continuously fetch new blocks.
 
