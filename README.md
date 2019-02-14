@@ -8,7 +8,7 @@ Follow the project progress at: [ETZ Block Explorer Development](https://trello.
 
 Clone the repo
 
-`git clone https://github.com/ethereumproject/explorer`
+`git clone https://github.com/etherzero-org/explorer.git`
 
 Download [Nodejs and npm](https://docs.npmjs.com/getting-started/installing-node "Nodejs install") if you don't have them
 
