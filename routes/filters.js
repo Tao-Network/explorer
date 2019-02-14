@@ -6,8 +6,8 @@ var BigNumber = require('bignumber.js');
 */
 function filterTX(txs, value) {
   return txs.map(function(tx){
-    // return [tx.hash, tx.blockNumber, tx.from, tx.to, etherUnits.toEther(new BigNumber(tx.value), 'wei'), tx.gas, tx.timestamp]
-    return [tx.hash, tx.blockNumber, tx.from, tx.to, etherUnits.toEther(new BigNumber(tx.value), 'ether'), tx.gas, tx.timestamp, tx.status]
+    //return [tx.hash, tx.blockNumber, tx.from, tx.to, etherUnits.toEther(new BigNumber(tx.value), 'ether'), tx.gas, tx.timestamp, tx.status]
+    return [tx.hash, tx.blockNumber, tx.from, tx.to, String(tx.value), tx.gas, tx.timestamp, tx.status]
   })
 }
 
@@ -71,14 +71,14 @@ function filterBlocks(blocks) {
 function datatableTX(txs) {
   return txs.map(function(tx){
     return [tx.hash, tx.blockNumber, tx.from, tx.to, 
-            etherUnits.toEther(new BigNumber(tx.value), 'wei'), tx.gas, tx.timestamp]
+            etherUnits.toEther(tx.value, 'wei'), tx.gas, tx.timestamp]
   })
 }
 
 function internalTX(txs) {
   return txs.map(function(tx){
     return [tx.transactionHash, tx.blockNumber, tx.action.from, tx.action.to, 
-            etherUnits.toEther(new BigNumber(tx.action.value), 'wei'), tx.action.gas, tx.timestamp]
+            etherUnits.toEther(tx.action.value), 'wei', tx.action.gas, tx.timestamp]
   })
 }
 

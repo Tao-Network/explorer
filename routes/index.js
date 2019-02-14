@@ -28,6 +28,7 @@ module.exports = function(app){
   var stats = require('./stats');
   var eventLog = require('./eventLog.js');
   var publicAPI = require("./publicAPIData");
+  
 
 
   /* 
@@ -43,10 +44,14 @@ module.exports = function(app){
   app.post('/data', getData);
   app.get('/publicAPI', publicAPI);//all public APIs
   app.get('/totaletz', publicAPI.getTotalEtz);
+  app.get('/health', publicAPI.getHealth);
+  app.get('/totalcapital', publicAPI.getTotalcapital);
 
   //app.post('/daorelay', DAO);
   app.post('/addressListData', addressListData);
   app.get('/addressListData', addressListData); 
+  app.post('/address-list-data', addressListData);
+  app.get('/address-list-data', addressListData); 
   app.post('/tokenrelay', Token);  
   app.post('/tokenListData', tokenListData); 
   app.post('/contractListData', contractListData); 

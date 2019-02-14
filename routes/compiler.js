@@ -3,18 +3,41 @@ var solc = require('solc');
 // var eth = require('./web3dummy').eth;
 var eth = require('./web3relay').eth;
 
-var Contract = require('./contracts');
+var contracts = require('./contracts');
 var mongoose = require( 'mongoose' );
+var Contract = mongoose.model( 'Contract' );
 var Transaction = mongoose.model( 'Transaction' );
 const ERC223ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"_name","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"_decimals","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"MAX_UINT256","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"_symbol","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"},{"name":"_data","type":"bytes"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"},{"name":"_data","type":"bytes"},{"name":"_custom_fallback","type":"string"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"},{"indexed":true,"name":"data","type":"bytes"}],"name":"Transfer","type":"event"}];
 const ERC20ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"acceptOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"},{"name":"data","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"newOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferAnyERC20Token","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"tokenOwner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Approval","type":"event"}];
-const SMART_ERCABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}];
+const SMART_ERCABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"}/*,{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}*/];
 var soliCompCache = {};//solidity compiler cache。generating for compiler cost too much time, so we swap space for time
 // var TokenTransferGrabber = require('./grabTokenTransfer');
 // TokenTransferGrabber.Init(eth);
-/* 
-  TODO: support other languages
-*/
+
+//compile input. view:https://solidity.readthedocs.io/en/v0.5.3/using-the-compiler.html
+var inputJson = {
+  language: 'Solidity',
+  // sources: {
+  //     'test.sol': {
+  //         content: 'contract C { function f() public { } }'
+  //     }
+  // },
+  settings: {
+    optimizer: {
+      // disabled by default
+      enabled: true,
+      // Optimize for how many times you intend to run the code.
+      // Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage.
+      runs: 200
+    },
+    outputSelection: {
+          '*': {
+              '*': ['abi', 'evm.bytecode']
+          }
+      }
+  }
+}
+
 module.exports = function(req, res) {
   // console.log(req.body);
   if (!("action" in req.body)){
@@ -25,7 +48,7 @@ module.exports = function(req, res) {
   if (req.body.action=="compile") {
     compileSolc(req, res);
   } else if (req.body.action=="find") {
-    Contract.findContract(req.body.addr, res);
+    contracts.findContract(req.body.addr, res);
   }
 
 }
@@ -40,7 +63,7 @@ var compileSolc = function(req, res) {
   var input = req.body.code;
   var optimization = (req.body.optimization) ? true : false;
   var optimise = (optimization) ? 1 : 0;
-
+  
   var bytecode = eth.getCode(address);
   if (bytecode.substring(0,2)=="0x")
     bytecode = bytecode.substring(2);
@@ -48,17 +71,11 @@ var compileSolc = function(req, res) {
   var data = {
     "address": address,
     "ERC": 0,
-    "creationTransaction": "",
-    "symbol": "",
-    //"owner": "",//don't overwrite
-    "decimals": 0,
-    "totalSupply": 0,
-    "balance":0,
     "compilerVersion": version,
     "optimization": optimization,
     "contractName": name,
-    // "tokenName":"",//don't overwrite
-    "sourceCode": input
+    "sourceCode": input,
+    "abi":""
   }
   if(bytecode==""){
     data.valid = false;
@@ -69,13 +86,22 @@ var compileSolc = function(req, res) {
     return;
   }
 
+  inputJson.settings.optimizer.enabled = optimization;
+  // input = input.replace(/pragma\s.*/, "");//删除pragma solidity .....;
+  // input = input.replace(/\/\/.*/g, "");//删除注释//
+  // input = input.replace(/\/\*([\w\W])*\*\//g, "");//删除注释/* */
+  inputJson.sources = {'xxx.sol':{
+    content: input
+  }}
+  inputJsonStr = JSON.stringify(inputJson);
+
   var targetSolc = soliCompCache[version];
   if(!targetSolc){
     try {
       // latest version doesn't need to be loaded remotely
       if (version == "latest") {
         targetSolc = solc;
-        var output = targetSolc.compile(input, optimise); 
+        var output = targetSolc.compile(inputJsonStr);
         testValidCode(output, data, bytecode, res);
       } else {
         solc.loadRemoteVersion(version, function(err, solcV) { 
@@ -92,7 +118,16 @@ var compileSolc = function(req, res) {
           else {
             targetSolc = solcV;
             soliCompCache[version] = targetSolc;//compiler cache
-            var output = targetSolc.compile(input, optimise); 
+            // var output = targetSolc.compile(input, optimise);
+            // var output = targetSolc.compile(input, optimise, onCompile);
+            // testValidCode(output, data, bytecode, res);
+
+            var output = targetSolc.compile(inputJsonStr);
+            // var output = targetSolc.compile(inputJsonStr, onCompile);
+            // var output = targetSolc.compileStandard(inputJsonStr, onCompile);
+            // var output = targetSolc.compileStandardWrapper(inputJsonStr, onCompile);
+            console.log("output:",output);
+            output = JSON.parse(output);
             testValidCode(output, data, bytecode, res);
           }
         });
@@ -107,15 +142,20 @@ var compileSolc = function(req, res) {
       return;
     }
   }else{
-    var output = targetSolc.compile(input, optimise); 
+    var output = targetSolc.compile(inputJsonStr);
     testValidCode(output, data, bytecode, res);
   }
 }
 
+
 //check is token contract
 //0：normal contract 2：ERC20 3：ERC223
 var checkERC = function(abi){
-  var abiObj = JSON.parse(abi);
+  var abiObj;
+  if(typeof(abi)=="string")
+    abiObj = JSON.parse(abi);
+  else
+    abiObj = abi;
   var isERC20 = false;
   var isERC223 = false;
   var exist = false;
@@ -176,28 +216,27 @@ var checkERC = function(abi){
 var testValidCode = function(output, data, bytecode, response) {
   var verifiedContracts = [];
   var targetContractName = data.contractName;
+  var allContractObj = output.contracts['xxx.sol'];
 
-  if(!output.contracts){
+  if(!allContractObj){
     data.valid = false;
     data["verifiedContracts"] = verifiedContracts;
     response.write(JSON.stringify(data));
     response.end();
     return;
   }
-  if(targetContractName.indexOf(":")!=0)
-    targetContractName = ":"+targetContractName;//compiled contract name has prefix char :
-  var targetContract = output.contracts[targetContractName]
-
-  var concatByteCode = "";
-  for (var contractName in output.contracts) {
-    // code and ABI that are needed by web3
-    // console.log(contractName + ': ' + output.contracts[contractName].bytecode);
-    concatByteCode += output.contracts[contractName].bytecode;
+  
+  var targetContract = allContractObj[targetContractName]
+  var concatByteCode = targetContract.evm.bytecode.object;
+  for (var contractName in allContractObj) {
     verifiedContracts.push({"name": contractName, 
-                            "abi": output.contracts[contractName].interface,
-                            "bytecode": output.contracts[contractName].bytecode});
+                            "abi": JSON.stringify(allContractObj[contractName].abi),
+                            "bytecode": allContractObj[contractName].evm.bytecode.object});
   }
-  //console.log('bytecode by current compile: ' + concatByteCode);
+
+  // console.log('bytecode from geth: ' + bytecode);
+  // console.log('=========================================');
+  // console.log('bytecode by current compile: ' + concatByteCode);
 
   // console.log();
   // reject special msg 
@@ -221,7 +260,7 @@ var testValidCode = function(output, data, bytecode, response) {
     return;
   }else if(concatByteCode.indexOf(testCode) > -1){
     data.valid = true;
-    data.abi = targetContract.interface;
+    data.abi = JSON.stringify(targetContract.abi);
     data.byteCode = bytecode;
     data["verifiedContracts"] = verifiedContracts;
     response.write(JSON.stringify(data));
@@ -229,36 +268,17 @@ var testValidCode = function(output, data, bytecode, response) {
     //write to db
     var  ERCType = checkERC(data.abi);
     data.ERC = ERCType;
-    var txFind = Transaction.findOne({to:null, contractAddress:data.address}).lean(true);
-    txFind.exec(function (err, doc) {
-      //get token info from blockchain
-      var ContractStruct = eth.contract(JSON.parse(data.abi));
-      data.balance = eth.getBalance(data.address);
-      if(ERCType>0){//is token
-        try{
-          var Token = ContractStruct.at(data.address);
-          data.decimals = Number(Token.decimals().toString());
-          data.symbol = Token.symbol();
-          data.totalSupply = Token.totalSupply();
-          // data.owner = doc.from;
-        } catch (e) {
-          console.log(e.stack);
-          // response.write("{err:'"+ e.stack+"'}");
-          // response.end();
-        }        
-      }else{
-        console.log("can not find token on blockchain. token address:"+data.address);
-      }
-      if(!err && doc){
-        data.creationTransaction = doc.hash;
-      }
-      Contract.addContract(data);
-      //write TokenTransfer to db and listening
-      // if(ERCType>0)//token contract
-      //   TokenTransferGrabber.PatchTransferTokens(data, true);
-    })
     
-    // console.log("verify complete Contract:"+data.address);
+    Contract.update(
+      {address: data.address}, 
+      {$set:{'ERC':data.ERC, 'compilerVersion':data.compilerVersion, 'optimization':data.optimization, 'contractName':data.contractName, 'sourceCode':data.sourceCode, 'abi':data.abi}}, 
+      {multi: false, upsert: false}, 
+      function (err, data) {
+        if(err)
+          console.log(err);
+      }
+    );
+
   }else{
     data.valid = false;
     data["verifiedContracts"] = verifiedContracts;

@@ -18,9 +18,10 @@ var filterTrace = require('./filters').filterTrace;
 if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
+  // web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.199.214:9646"));//t 
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
-  // web3 = new Web3(new Web3.providers.HttpProvider("http://13.115.55.39:9646"));
   // web3 = new Web3(new Web3.providers.HttpProvider("http://etzrpc.org:80"));
+  // web3 = new Web3(new Web3.providers.HttpProvider("http://13.115.55.39:9646"));
 }
 
 

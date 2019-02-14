@@ -41,7 +41,7 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
       //fetchInternalTxs();
       if(tokenData){
         $rootScope.$state.current.data["pageTitle"] = "Contract Address";
-        if(tokenData.creator)
+        if(tokenData.bytecode)
           $scope.isContract = true;
         $scope.token = tokenData;
       }
@@ -115,13 +115,6 @@ angular.module('BlocksApp').controller('AddressController', function($stateParam
         url: '/transactionRelay',
         data: {"action": "internalTX", "address": $scope.addrHash, "internalPage":internalPage, 'fromAccount':$scope.acc}
       }).success(function(repData) {
-        repData.forEach(function(record){
-          var decimals = parseInt($scope.token.decimals);
-          if(isNAN(decimals))
-            record.amount = record.amount;
-          else
-            record.amount = record.amount/(10**decimals);
-        })
         $scope.internalDatas = repData;
       });
     }

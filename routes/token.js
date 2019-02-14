@@ -190,16 +190,17 @@ module.exports = function(req, res){
       }
       if(transferPage<0)
           transferPage=0;
-      tokenTransferFind = TokenTransfer.find(findCond).skip(transferPage*10).limit(10).lean(true);
+      tokenTransferFind = TokenTransfer.find(findCond).sort({"blockNumber":-1}).skip(transferPage*10).limit(10).lean(true);
       tokenTransferFind.exec(function (err, docs) {
-      respData = JSON.stringify(docs);
-      
+        respData = JSON.stringify(docs);
+        res.write(respData);
+        res.end();
       });
     } catch (e) {
       console.error(e);
+      res.write(respData);
+      res.end();
     }
-    res.write(respData);
-    res.end();
   }else{
     res.write("");
     res.end();

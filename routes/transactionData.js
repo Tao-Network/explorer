@@ -2,6 +2,9 @@
 // var etherUnits = require("../lib/etherUnits.js");
 // var BigNumber = require('bignumber.js');
 var web3relay = require('./web3relay');
+var mongoose = require( 'mongoose' );
+var Transaction = mongoose.model('Transaction');
+var InerTransaction = mongoose.model('InerTransaction');
 
 const transferMethodFlag = "0xa9059cbb000000000000000000000000";
 const waiting = "wait for browser grabbing";
@@ -9,8 +12,7 @@ module.exports = function(req, res){
   var respData = "";
     try{
       //console.log("respone tokenlist");
-      var mongoose = require( 'mongoose' );
-      var Transaction = mongoose.model('Transaction');
+      
       var isTransfer = false;//req.body.isTransfer;
       var action = req.body.action;
       var address = req.body.address;
@@ -19,7 +21,8 @@ module.exports = function(req, res){
         var internalPage = req.body.internalPage;
         if(internalPage<0)
         internalPage = 0;
-        transactionFind = Transaction.find({$or: [{"to": address}, {"from": address}], input:{$ne:"0x"}}).skip(internalPage*10).limit(10).lean(true);
+        //transactionFind = Transaction.find({$or: [{"to": address}, {"from": address}], input:{$ne:"0x"}}).sort({"blockNumber":-1}).skip(internalPage*10).limit(10).lean(true);
+        transactionFind = InerTransaction.find({$or: [{"to": address}, {"from": address}]}).sort({"blockNumber":-1}).skip(internalPage*10).limit(10).lean(true);
         transactionFind.exec(function (err, docs) {
         espData = JSON.stringify(docs);
         res.write(espData);
@@ -64,7 +67,7 @@ module.exports = function(req, res){
               res.end();
               return;
             }
-            txData.value = txData.value/(10**18)//etherUnits.toEther(new BigNumber(txData.value), 'wei');//
+            txData.value = txData.value/(10**18)//etherUnits.toEther(txData.value, 'wei');//
             var blockData = web3relay.getBlock(txData.blockNumber);
             if(blockData){
               txData.timestamp = blockData.timestamp;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-//给console.log()增加时间戳
+//add timestamp for console.log()
 (function() { //add timestamp to console.log and console.error(from http://yoyo.play175.com)
     var date = new Date();
 
@@ -53,6 +53,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app libraries
 global.__lib = __dirname + '/lib/';
 
+//allow custom header and CORS
+app.all('*',function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+  
+    if (req.method == 'OPTIONS') {
+      res.send(200); /让options请求快速返回/
+    }
+    else {
+      next();
+    }
+  });
 
 // client
 

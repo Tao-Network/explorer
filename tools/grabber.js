@@ -44,7 +44,10 @@ var TokenTransfer = mongoose.model( 'TokenTransfer' );
 var LogEvent = mongoose.model( 'LogEvent' );
 var Witness = mongoose.model( 'Witness' );
 var Address = mongoose.model( 'Address' );
+var InerTransaction = mongoose.model( 'InerTransaction' );
 
+const SMART_ERCABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"}/*,{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}*/];
+const socailAddr = "0x4761977f757e3031350612d55bb891c8144a414b";//社区自治奖励地址
 const ERC20ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"_totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"acceptOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"},{"name":"data","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"newOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"tokenAddress","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferAnyERC20Token","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"tokenOwner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Approval","type":"event"}];
 const ERC20_METHOD_DIC = {"0xa9059cbb":"transfer", "0xa978501e":"transferFrom"};
 const METHOD_DIC = {
@@ -58,7 +61,7 @@ const METHOD_DIC = {
 };
 
 var ContractStruct;
-
+var intervalTime = 1000;//采集间隔
 //the TX has no receipt while grabbing block, we cache TX and grab later
 var laterGrabBlockDatas = [];
 
@@ -92,15 +95,17 @@ var grabBlocks = function() {
     if(config.listenOnly){
         listenBlocks();
     }else{
-        intervalBlocks();
+        intervalBlocks(intervalTime);
     }
 }
 
 //grabber block by interval
 var grabeIntervalHandle = null;
-var intervalBlocks = function() {
+var intervalBlocks = function(_intervalTime) {
     var lastBlockNum;
-    var delayBlock = 3;//delay grabber block num
+    var delayBlock = 5;//t delay grabber block num
+    intervalTime = _intervalTime;
+        
     var blockFind = Block.findOne({}, "number").sort('-number');
     blockFind.exec(function (err, doc) {
         if(err){
@@ -111,21 +116,52 @@ var intervalBlocks = function() {
             lastBlockNum=0;
         else
             lastBlockNum = doc.number-1;//Avoid incomplete collection of the last block in the database
-        LogEvent.collection.remove({'blockNumber':lastBlockNum});//LogEvent doc has no index, so we remove logEvet about lastBlockNum to avoid repetition.
+            
+        //remove lastest Block data in DB to avoid incomplete data
+        Block.collection.remove({'number':lastBlockNum+1});
+        LogEvent.collection.remove({'blockNumber':lastBlockNum+1});
+        Contract.collection.remove({'blockNumber':lastBlockNum+1});
+        TokenTransfer.collection.remove({'blockNumber':lastBlockNum+1});
+        InerTransaction.collection.remove({'blockNumber':lastBlockNum+1});
 
-        grabeIntervalHandle = setInterval(function(){
-            try{
-                var newBlockNumber = web3.eth.blockNumber;
-                if(lastBlockNum < newBlockNumber-delayBlock){
-                    lastBlockNum++;
-                    grabBlock(config, web3, lastBlockNum);
+        grabeIntervalHandle = setInterval(web3.eth.getBlockNumber, intervalTime, function(blockErr, newBlockNumber){
+            if(blockErr){
+                if(blockErr.toString().indexOf("Invalid JSON RPC")!=-1){
+                    console.log("rpc err:",blockErr);
+                    clearInterval(grabeIntervalHandle);
+                    grabeIntervalHandle = 0;
+                    setTimeout(restart, 5000);
                 }else{
-                    // console.log("lastBlockNum:",lastBlockNum);
+                    console.log("getBlockNumber err:",blockErr);
                 }
-            }catch(err){
-                console.log(err);
+                return;
             }
-        }, 1000);
+
+            // if(lastBlockNum > newBlockNumber-delayBlock-3){//恢复正常采集速度
+            //     clearInterval(grabeIntervalHandle);
+            //     intervalBlocks(1000);
+            //     return;
+            // }
+
+            if(lastBlockNum < newBlockNumber-delayBlock){
+                lastBlockNum++;
+                grabBlock(config, web3, lastBlockNum);
+            }
+        });
+
+        // grabeIntervalHandle = setInterval(function(){
+        //     try{
+        //         var newBlockNumber = web3.eth.blockNumber;
+        //         if(lastBlockNum < newBlockNumber-delayBlock){
+        //             lastBlockNum++;
+        //             grabBlock(config, web3, lastBlockNum);
+        //         }else{
+        //             // console.log("lastBlockNum:",lastBlockNum);
+        //         }
+        //     }catch(err){
+        //         console.log(err);
+        //     }
+        // }, 1000);
             
     });
         
@@ -134,7 +170,7 @@ var intervalBlocks = function() {
 //listen new Block by watch
 var newBlocksWatch;
 var listenBlocks = function() {
-    var delayBlock = 3;//delay grabber block num
+    var delayBlock = 5;//delay grabber block num
     var lastBlockNum = web3.eth.blockNumber-2;//restarting may pass 2 blocks
     if(lastBlockNum<0)
         lastBlockNum=0;
@@ -246,6 +282,7 @@ var writeBlockToDB = function(config, blockData) {
 
 var upsertAddress=function(miner, addrs){
     if(miner){
+        //add reward to master node
         Address.update({"addr":miner},
             {$set:{"type":2}, $inc:{"balance":0.3375}},
             {upsert: true},
@@ -254,29 +291,56 @@ var upsertAddress=function(miner, addrs){
                     console.log("err:", err);
             }
         )
+        //add reward to ETZ Community
+        Address.update({"addr":socailAddr},
+            {$inc:{"balance":0.1125}},
+            {upsert: true},
+            function (err, doc) {
+                if(err)
+                    console.log("err:", err);
+            }
+        )
     }
     if(addrs){
-        for(var i=0; i<addrs.length; i++){
-            var balance = web3.eth.getBalance(addrs[i]);
+        for(let i=0; i<addrs.length; i+=2){
+            // var balance = web3.eth.getBalance(addrs[i]);
             Address.update({"addr":addrs[i]},
-                {$set:{"balance":balance}},
-                {upsert: true},
+                // {$set:{"balance":balance}},
+                {$inc:{"balance":Number(addrs[i+1])}},
+                {upsert: false},
                 function (err, doc) {
-                    if(err)
-                        console.log("err:", err);
+                    if(err){
+                        console.log("Address.update err:", err);
+                        return;
+                    }else if(!doc || doc.n==0){
+                        updateFromNode(addrs[i]);
+                    }
+                        
                 }
             )
         }
     }
 }
 
+var updateFromNode = function(addr){
+    var balance = web3.eth.getBalance(addr);
+    if(balance<10000000000000000000)//save address which balance is great than 10 ETZ 
+        return;
+    Address.insertMany([{"addr":addr, "balance":Number(etherUnits.toEther(balance, 'wei'))}], function (err, doc) {
+        if(err){
+            console.log("updateFromNode err:", err);
+            return;
+        }
+    });
+}
+
 /**
     Break transactions out of blocks and write to DB
 **/
 var pingTXAddr = "0x000000000000000000000000000000000000000a";
-var pingTXValue = "0";
 var writeTransactionsToDB = function(blockData) {
     var bulkOps = [];
+    var innerTxs = null;
     var noReceiptTXs = [];
     var addrs = [];
     if (blockData.transactions.length > 0) {
@@ -290,15 +354,24 @@ var writeTransactionsToDB = function(blockData) {
             }
             txData.timestamp = blockData.timestamp;
             txData.witness = blockData.witness;
-            txData.gasPrice = etherUnits.toEther(new BigNumber(txData.gasPrice), 'ether');
-            txData.value = etherUnits.toEther(new BigNumber(txData.value), 'wei');
-            
-            if(receiptData){
-                txData.gasUsed = receiptData.gasUsed;
-                txData.contractAddress = receiptData.contractAddress;
-                if(receiptData.status!=null)
-                    txData.status = receiptData.status;
+            txData.gasPrice = String(txData.gasPrice);//etherUnits.toEther(txData.gasPrice, 'ether');
+            txData.value = etherUnits.toEther(txData.value, 'wei');
+            txData.gasUsed = receiptData.gasUsed;
+            txData.contractAddress = receiptData.contractAddress;
+            if(receiptData.intxs){
+                innerTxs = [];
+                for(var k=0; k<receiptData.intxs.length; k++){
+                    var innerFrom = receiptData.intxs[k].from;
+                    var innerTo = receiptData.intxs[k].to;
+                    var innerValue = etherUnits.toEther(receiptData.intxs[k].value, 'wei');
+                    innerTxs.push({"from":innerFrom, "to":innerTo, "value":innerValue,"blockNumber":blockData.number, "timestamp":blockData.timestamp});
+                    addrs.push(innerFrom, "-"+innerValue);
+                    addrs.push(innerTo, innerValue);
+                }
             }
+            if(receiptData.status!=null)
+                txData.status = receiptData.status;
+            
             if(txData.input && txData.input.length>2){// contract create, Event logs of internal transaction
                 if(txData.to == null){//contract create
                     //console.log("contract create at tx:"+txData.hash);
@@ -312,13 +385,28 @@ var writeTransactionsToDB = function(blockData) {
                             contractdb.decimals = Token.decimals();
                             contractdb.symbol = Token.symbol();
                             contractdb.totalSupply = Token.totalSupply();
+                            contractdb.balance = web3.eth.getBalance(receiptData.contractAddress);
                         }catch(err){
                             isTokenContract = false;
+                        }
+                        if(isTokenContract){//recheck
+                            for(var i=0; i<SMART_ERCABI.length; i++){
+                                var ERC20Ele = SMART_ERCABI[i];
+                                if(!Token.hasOwnProperty(ERC20Ele.name)){
+                                    isTokenContract = false;
+                                    break;
+                                }
+                            }
                         }
                     }else{//not Token Contract, need verify contract for detail
                         // console.log("not Token Contract");
                         isTokenContract = false;
                     }
+                    Address.insertMany([{"addr":receiptData.contractAddress, "type":1, "balance":0}], function (inserAddrErr, insertDoc) {
+                        if(inserAddrErr){
+                            console.log("inserAddrErr:", inserAddrErr);
+                        }
+                    });
                     contractdb.owner = txData.from;
                     contractdb.blockNumber = blockData.number;
                     contractdb.creationTransaction = txData.hash;
@@ -396,14 +484,9 @@ var writeTransactionsToDB = function(blockData) {
                     logEvent.from= receiptData.from;
                     logEvent.to= receiptData.to;
                     logEvent.timestamp = blockData.timestamp;
+                    logEvent.gasUsed = receiptData.gasUsed;
+                    logEvent.gasPrice = txData.gasPrice;
                     logEvents.push(logEvent);
-
-                    //deal with Released
-                    if(logEvent.eventName.indexOf("Released(")==0){
-                        txData.from = txData.to;
-                        txData.to = "0x"+logEvent.topics[1].substr(26);
-                        txData.value = etherUnits.toEther(new BigNumber(logEvent.topics[2]), 'wei');
-                    }
                 }
                 //write all type of internal transaction into db
                 if(logEvents.length>0){
@@ -422,19 +505,36 @@ var writeTransactionsToDB = function(blockData) {
             }
 
             //drop out masterNode ping transactions
-            if(!(txData.to == pingTXAddr && txData.value == pingTXValue && 
+            if(!(txData.to == pingTXAddr && txData.value == "0" && 
                 (txData.gasUsed==34957||txData.gasUsed==49957||txData.gasUsed==34755||txData.gasUsed==19755||txData.gasUsed==44550))
                 ){
+                if(Number(txData.value)>0){
+                    if(txData.from)
+                        addrs.push(txData.from, "-"+txData.value);
+                    if(txData.to)
+                        addrs.push(txData.to, txData.value);
+                }
                 bulkOps.push(txData);
-                if(txData.from)
-                    addrs.push(txData.from);
-                if(txData.to)
-                    addrs.push(txData.to);
             }
         }
 
         //collect address
         upsertAddress(blockData.miner, addrs);
+
+        //write innerTxs to db
+        if(innerTxs!=null){ 
+            InerTransaction.collection.insert(innerTxs, function( err, tx ){
+                if ( typeof err !== 'undefined' && err ) {
+                    if (err.code == 11000) {
+                        //console.log('Skip: Duplicate key ' + err);
+                    } else {
+                        console.log('innerTxs Error: Aborted due to error: ' + err);
+                    }
+                } else{
+                    //console.log('DB successfully written for innerTxs ' + innerTxs.toString() );
+                }
+            });
+        }
 
         //write all type of transaction into db
         if(bulkOps.length>0){
@@ -460,16 +560,6 @@ var writeTransactionsToDB = function(blockData) {
     }
 }
 
-/*
-  Patch Missing Blocks
-*/
-var patchBlocks = function(config) {
-    connectWeb3();
-    // number of blocks should equal difference in block numbers
-    var firstBlock = 0;
-    var lastBlock = web3.eth.blockNumber;
-    blockIter(web3, firstBlock, lastBlock, config);
-}
 
 var blockIter = function(web3, firstBlock, lastBlock, config) {
     // if consecutive, deal with it
@@ -526,9 +616,11 @@ setInterval(function(){
 }, 3000);
 
 var config = {
+    // "rpc": 'http://192.168.199.214:9646',//t 
     "rpc": 'http://localhost:9646',
-    // "rpc": 'http://13.115.55.39:9646',
     // "rpc": 'http://etzrpc.org:80',
+    // "rpc": 'http://13.115.55.39:9646',
+    
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

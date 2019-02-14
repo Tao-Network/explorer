@@ -2,6 +2,7 @@
  * get all Address from TX
  */
 require( '../../db.js' );
+var etherUnits = require("../../lib/etherUnits.js");
 var Web3 = require('web3');
 var web3;
 var mongoose = require('mongoose');
@@ -98,7 +99,7 @@ function insertDB(){
             {'addr': updateAddr}, 
             // {$setOnInsert: witnessDoc}, 
             // {upsert: true}, 
-            {$set:{'balance':balance}}, 
+            {$set:{'balance':Number(etherUnits.toEther(balance, 'wei'))}}, 
             {multi: false, upsert: false}, 
             function (err, data) {
                 if(err)

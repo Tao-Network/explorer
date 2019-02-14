@@ -6,17 +6,6 @@ require( '../db.js' );
 var mongoose = require( 'mongoose' );
 var Contract     = mongoose.model( 'Contract' );
 
-exports.addContract = function(contract) {
-  Contract.update(
-    {address: contract.address}, 
-    contract, 
-    {upsert: true}, 
-    function (err, data) {
-      console.log(data);
-    }
-  );
-
-}
 
 exports.findContract = function(address, res) {
   var contractFind = Contract.findOne({ address : address}).lean(true);

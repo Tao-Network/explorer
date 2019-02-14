@@ -15,10 +15,13 @@ function requestParam(req, param){
 module.exports = function(req, res){
   var listFormat = parseInt(requestParam(req, "listFormat"));
   var pageSize = parseInt(requestParam(req, "pageSize"));
-  if(!pageSize)
-    pageSize = 10;
-  if(pageSize>1000)
-    pageSize = 1000;
+  if(listFormat!=1){//1为合作平台专用
+    if(!pageSize)
+      pageSize = 10;
+    if(pageSize>1000)
+      pageSize = 1000;
+  }
+  
 
   var page = parseInt(requestParam(req, "page"));
   if(isNaN(page) || page<0)

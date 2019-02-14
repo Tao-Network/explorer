@@ -1,9 +1,12 @@
-#!/usr/bin/env node
+#!u/sr/bin/env node
+var http = require("http");
 var eth = require("./web3relay").eth;
 var filterBlocks = require('./filters').filterBlocks;
 var witnessListData = require('./witnessListData');
 
 var totalETZ = "totalETZ";
+var health = "health";
+var totalcapital = "totalcapital";
 var balance = "balance";
 var balancemulti = "balancemulti";
 
@@ -16,6 +19,7 @@ var getsourcecode = "getsourcecode";
 
 var getstatus = "getstatus";
 var gettxreceiptstatus = "gettxreceiptstatus";
+var transactionlist = "transactionlist";
 
 var getblockreward = "getblockreward";
 
@@ -39,12 +43,43 @@ var eth_gasPrice = "eth_gasPrice";
 var eth_estimateGas = "eth_estimateGas";
 
 var tokensupply = "tokensupply";
+var tokenlist = "tokenlist";
 
 var mongoose = require( 'mongoose' );
 var Block = mongoose.model('Block');
 var Transaction = mongoose.model('Transaction');
 var Contract = mongoose.model('Contract');
 var LogEvent = mongoose.model('LogEvent');
+var Witness = mongoose.model('Witness');
+
+function regAddress(address){
+  address = address.replace(/(^\s*)|(\s*$)/g, "");
+  address = address.replace(/\"/g, "");
+  if(address.indexOf("0x")!=0)
+    address = "0x"+address;
+  return address;
+}
+
+function httpReq(url, cb){
+	req = http.request(url, function(res) {
+	var respData="";
+	res.setEncoding('utf8');
+	res.on('data', function(chunk) {
+		if(cb)
+			respData+=chunk;
+		}).on('end', function() {
+			if(cb){
+				cb(respData);
+			}
+		}).on('error', function(err) {
+			console.log(err.toString());
+		});
+		});
+	req.on('error', function(err){
+	console.log(err.toString());
+	});
+	req.end();
+}
 
 var requestParam = function(req, param){
   var p = req.query[param];
@@ -54,7 +89,26 @@ var requestParam = function(req, param){
   return p;
 }
 
+var requestParamInt = function(req, param, defaultNum=0){
+  var num = requestParam(req, param);
+  if(isNaN(num)){
+    return defaultNum;
+  }
+  return parseInt(num);
+}
+
+var requestParamNum = function(req, param, defaultNum=0){
+  var num = requestParam(req, param);
+  if(isNaN(num)){
+    return defaultNum;
+  }
+  return Number(num);
+}
+
+
 module.exports = function(req, res){
+//  console.log("publicAPI:"+req.client.remoteAddress+":"+req.originalUrl);
+  res.header('Access-Control-Allow-Origin', '*');
   var respData = {"status":1,"message":"OK","result":""};
     try{
       methodName = req.query.methodName;
@@ -73,9 +127,47 @@ module.exports = function(req, res){
             sendData(res, respData, value);
           }
           break;
+      	case health:
+          res.write("I am ok!");
+          res.end();
+      	  break;
+      	case totalcapital:
+          totalBlockNum = eth.blockNumber;
+          onlyValue = requestParam(req, "onlyValue");
+          value = 196263376+0.45*totalBlockNum;
+      	// {"status":0,,"data":{"time":1547621967,"period":86400,"last":"0.113554","open":"0.115308","close":"0.113554","high":"0.118053","low":"0.112","totalcapital":"18122.0096"}}
+      	// {"status":1,"message":"OK","result":{"time":1547621967,"etzprice":"0.115308","currencyunit":"USD","totalcapital":"18122.0096"}}
+      	  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+             eventLogList = JSON.parse(eventLogList);
+             var ret ={};
+        		ret.time=eventLogList.time;
+        		ret.etzprice=eventLogList.data.last;
+        		ret.currencyunit="USD";
+        		ret.totalcapital=value*Number(ret.etzprice);
+            		sendData(res, respData, ret);
+        	})	
+      	  break;
         case balance:
           address = requestParam(req, "address");
-          sendData(res, respData, eth.getBalance(address).toString());
+          address = regAddress(address);
+          if(address.length <= 18){
+            if(address.length==18 && address.indexOf("0x")==0){
+              address = address.substr(2);
+            }
+           Witness.findOne({"witness":address},"miner").exec((err, doc)=>{
+              if(err)
+                  responseFail(res, respData, err.toString());
+              else{
+                if(doc){
+                  sendData(res, respData, eth.getBalance(doc.miner).toString());
+                }else{
+                  responseFail(res, respData, "no miner");
+                }
+              }
+            }) 
+          }else{
+            sendData(res, respData, eth.getBalance(address).toString());
+          }
           break;
         case balancemulti:
           addresses = requestParam(req, "address");
@@ -92,13 +184,12 @@ module.exports = function(req, res){
           break;
         case txlist:
           address = requestParam(req, "address");
-          var pageSize = Number(requestParam(req, "pageSize"));
-          var transactionPage = requestParam(req, "page");
+          var pageSize = requestParamInt(req, "pageSize", 10);
+          var transactionPage = requestParamInt(req, "page", 0);
           if(pageSize>100)
             pageSize = 100;
-          if(transactionPage<0)
-            transactionPage = 0;
-          transactionFind = Transaction.find({$or: [{"from": address}, {"to": address}]}).skip(transactionPage*pageSize).limit(pageSize).lean(true);
+          
+          transactionFind = Transaction.find({$or: [{"from": address}, {"to": address}]}).sort("-blockNumber").skip(transactionPage*pageSize).limit(pageSize).lean(true);
           transactionFind.exec(function (err, docs) {
             if(err)
               responseFail(res, respData, err.toString());
@@ -109,12 +200,11 @@ module.exports = function(req, res){
           break;
         case txlistinternal:
           address = requestParam(req, "address");
-          var transactionPage = requestParam(req, "page");
-          var pageSize = Number(requestParam(req, "pageSize"));
+          address = address.toLowerCase();
+          var transactionPage = requestParamInt(req, "page", 0);
+          var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
             pageSize = 100;
-          if(transactionPage<0)
-            transactionPage = 0;
           transactionFind = Transaction.find({$or: [{"from": address}, {"to": address}], input:{$ne:"0x"}}).skip(transactionPage*pageSize).limit(pageSize).lean(true);
           transactionFind.exec(function (err, docs) {
             if(err)
@@ -126,12 +216,10 @@ module.exports = function(req, res){
           break;
         case getminedblocks:
           address = requestParam(req, "address");
-          var page = requestParam(req, "page");
-          var pageSize = Number(requestParam(req, "pageSize"));
+          var page = requestParamInt(req, "page", 0);
+          var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
             pageSize = 100;
-          if(page<0)
-            page = 0;
             
           var blockFind = Block.findOne( { "miner" : address }).skip(page*pageSize).limit(pageSize).lean(true);
           blockFind.exec(function (err, doc) {
@@ -171,6 +259,7 @@ module.exports = function(req, res){
           break;
         case getstatus:
           txhash = requestParam(req, "txhash");
+          txhash = txhash.toLowerCase();
           txr = eth.getTransactionReceipt(txhash);
           if(txr){
             var data;
@@ -185,6 +274,7 @@ module.exports = function(req, res){
           break;
         case gettxreceiptstatus:
           txhash = requestParam(req, "txhash");
+          txhash = txhash.toLowerCase();
           txr = eth.getTransactionReceipt(txhash);
           if(txr){
             var data;
@@ -196,6 +286,22 @@ module.exports = function(req, res){
           }else{
             responseFail(res, respData, "not exist");
           }
+          break;
+        case transactionlist:
+          address = requestParam(req, "address");
+          address = address.toLowerCase();
+          var transactionPage = requestParamInt(req, "page", 0);
+          var pageSize = requestParamInt(req, "pageSize", 10);
+          if(pageSize>100)
+            pageSize = 100;
+          transactionFind = Transaction.find({$or: [{"from": address}, {"to": address}]}).sort("-blockNumber").skip(transactionPage*pageSize).limit(pageSize).lean(true);
+          transactionFind.exec(function (err, docs) {
+            if(err)
+              responseFail(res, respData, err.toString());
+            else{
+              sendData(res, respData, docs);
+            }
+          });
           break;
         case getblockreward:
           blockno = Number(requestParam(req, "blockno"));
@@ -213,24 +319,51 @@ module.exports = function(req, res){
             }
           }
           break;
-          case getLogs:
+	  case getLogs:
             address = requestParam(req, "address");
-            fromBlock = Number(requestParam(req, "fromBlock"));
+	          txHash = requestParam(req, "txHash");
+            fromBlock = requestParamNum(req, "fromBlock", null);
             toBlock = requestParam(req, "toBlock");
             topics = requestParam(req, "topics");
             data = requestParam(req, "data");
             returnFilters = requestParam(req, "returnFilters");
-            findObj = {'address':address};
+	          limitNum = requestParam(req, "limit");
+            var sortStr = requestParam(req, "sort");
+	          if(!fromBlock){
+              responseFail(res, respData, "fromBlock is needed");
+              return;
+            }
+            if(!address){
+              responseFail(res, respData, "contract address is needed");
+              return;
+            }
+            address = address.toLowerCase();
+	          findObj = {'address':address};
+            if(txHash){
+              if(txHash.indexOf("0x")!=0){
+                txHash = "0x"+txHash;
+              }
+              findObj.txHash = txHash;
+            }
+	          if(fromBlock){
+              findObj.blockNumber = {$gte:fromBlock};
+            }
             if(toBlock){
-              if(isNaN(toBlock))
-                findObj.blockNumber = {$gte:fromBlock};
+	            if(toBlock == "latest")
+                toBlock = eth.blockNumber;
               else
-                findObj.blockNumber = {$gte:fromBlock, $lte:toBlock};
+                toBlock = Number(toBlock);
+
+              if(findObj.blockNumber)
+                findObj.blockNumber.$lte = toBlock;
+              else
+                findObj.blockNumber = {$lte:toBlock};
             }
             if(topics){
               var topicsArr = topics.split(",");
               for(var n=0; n<topicsArr.length; n++){
                 topicsArr[n] = topicsArr[n].trim();
+                topicsArr[n] = topicsArr[n].toLowerCase();
                 if(topicsArr[n]!="")
                   findObj["topics."+n] = topicsArr[n];
               }
@@ -238,20 +371,22 @@ module.exports = function(req, res){
             if(data){
               findObj.data = data;
             }
-            if(toBlock == "latest")
-              toBlock = eth.blockNumber;
-            else
-              toBlock = Number(toBlock);
-            
+
             var findOP;
             if(returnFilters){
               returnFilters = returnFilters.split(",");
               returnFilters = returnFilters.join(" ");
-              findOP = LogEvent.find(findObj, returnFilters);
+              findOP = LogEvent.find(findObj, returnFilters).lean(true);
             }
             else
-              findOP = LogEvent.find(findObj);
-            
+              findOP = LogEvent.find(findObj).lean(true);
+	          if(sortStr)
+              findOP.sort(sortStr);
+            else
+              findOP.sort("-blockNumber");
+            if(limitNum)
+              findOP = findOP.limit(Number(limitNum));
+
             findOP.exec(function(err, docs){
               if(err){
                 responseFail(res, respData, err.toString());
@@ -285,7 +420,7 @@ module.exports = function(req, res){
             break;
           case eth_getTransactionByBlockNumberAndIndex:
             blockNumber = requestParam(req, "blockNumber");
-            index = requestParam(req, "index");
+            index = requestParamInt(req, "index", 0);
             sendData(res, respData, eth.getTransactionFromBlock(blockNumber, index));
             break;
           case eth_getTransactionCount:
@@ -313,7 +448,7 @@ module.exports = function(req, res){
             break;
           case eth_getStorageAt:
             address = requestParam(req, "address");
-            position = requestParam(req, "position");
+            position = requestParamInt(req, "position");
             blockNumber = requestParam(req, "blockNumber");
             sendData(res, respData, eth.getStorageAt(address, position, blockNumber));
             break;
@@ -348,7 +483,21 @@ module.exports = function(req, res){
               }
             });
             break;
-            beak;
+          case tokenlist:
+            var page = requestParamInt(req, "page", 0);
+            var pageSize = requestParamInt(req, "pageSize", 10);
+            if(pageSize>100)
+              pageSize = 100;
+            var contractFind = Contract.find({ERC:{$gt:0}}, "-sourceCode -byteCode").skip(page*pageSize).limit(pageSize).lean(true);
+            contractFind.exec(function (err, docs) {
+              if(err){
+                console.log("tokenlist getList err: ", err);
+                responseFail(res, respData, err.toString());
+              }else{
+                sendData(res, respData, docs);
+              }
+            });
+            break;
           case masterNodeVer:
             var blockFind = Block.find( { "timestamp":{$gt:1535731200}}).lean(true);
             blockFind.exec(function (err, docs) {
@@ -397,10 +546,15 @@ module.exports = function(req, res){
             break;
 
           case masternodeList:
+            var pageSize = requestParamInt(req, "pageSize", 9999999999);
+            var transactionPage = requestParamInt(req, "page", 0);
+            // if(pageSize>100)
+            //   pageSize = 100;
+            
             req.query.listFormat=1;
             req.query.totalPage = 1;
-            req.query.page = 0;
-            req.query.pageSize = 1000;
+            req.query.page = transactionPage;
+            req.query.pageSize = pageSize;
             witnessListData(req, res);
             break;
           
@@ -431,4 +585,22 @@ module.exports.getTotalEtz = function(req, res){
   respData = 196263376+0.45*totalBlockNum;
   res.write(String(respData));
   res.end();
+}
+
+module.exports.getHealth = function(req, res){
+  res.write("I am ok!");
+  res.end();
+}
+
+module.exports.getTotalcapital = function(req, res){
+  totalBlockNum = eth.blockNumber;
+  onlyValue = requestParam(req, "onlyValue");
+  value = 196263376+0.45*totalBlockNum;
+  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+	eventLogList = JSON.parse(eventLogList);
+ 	console.log("eventLogList",eventLogList);
+	totalcapital=value*Number(eventLogList.data.last);
+  	res.write(String(totalcapital));
+  	res.end();
+})	
 }

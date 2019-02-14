@@ -47,7 +47,6 @@ BlocksApp.controller('MainController', ['$scope', '$rootScope', function($scope,
 Layout Partials.
 By default the partials are loaded through AngularJS ng-include directive.
 ***/
-
 /* Setup Layout Part - Header */
 BlocksApp.controller('HeaderController', ['$scope', '$location', function($scope, $location) {
     $scope.$on('$includeContentLoaded', function() {
@@ -57,6 +56,8 @@ BlocksApp.controller('HeaderController', ['$scope', '$location', function($scope
     $scope.form = {};
     $scope.searchQuery = function(s) {
         var search = s.toLowerCase();
+        search = search.replace(/(^\s*)|(\s*$)/g, "");
+        search = search.replace(/\"/g, "");
 
         $scope.form.searchInput="";
         $scope.form.searchForm.$setPristine();
@@ -391,6 +392,23 @@ BlocksApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvide
         })
         .state('addressList', {
             url: "/addressList/{type}",
+            templateUrl: "views/addressList.html",
+            data: {pageTitle: 'Address List'},
+            controller: "AddressListController",
+            resolve: {
+                deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'BlocksApp',
+                        insertBefore: '#ng_load_plugins_before', 
+                        files: [
+                             '/js/controllers/AddressListController.js'
+                        ]
+                    });
+                }]
+            }
+        })
+        .state('rich-list', {
+            url: "/rich-list/{type}",
             templateUrl: "views/addressList.html",
             data: {pageTitle: 'Address List'},
             controller: "AddressListController",

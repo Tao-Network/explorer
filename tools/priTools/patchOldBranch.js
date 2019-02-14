@@ -183,6 +183,7 @@ function nextInsertBatch(){
         }
         var addrItem = {"addr":addressItems[itemIndex], "type":0, "balance":0};
         addrItem.balance = web3.eth.getBalance(addrItem.addr);
+        addrItem.balance = Number(etherUnits.toEther(addrItem.balance, 'wei'));
         // if(contractAddrs.indexOf(addrItem.addr)>-1){//contract addr
         //     addrItem.type = 1;
         // }

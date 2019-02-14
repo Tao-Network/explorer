@@ -77,6 +77,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
         repData.forEach(function(record){
           record.amount = record.amount/10**parseInt($scope.token.decimals);
         })
+        $scope.transferPage = transferPage;
         $scope.transfer_tokens = repData;
       });
     }
@@ -91,6 +92,7 @@ angular.module('BlocksApp').controller('TokenController', function($stateParams,
         repData.forEach(function(record){
           record.amount = record.amount/10**parseInt($scope.token.decimals);
         })
+        $scope.internalPage = internalPage;
         $scope.internalDatas = repData;
       });
     }

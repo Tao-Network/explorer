@@ -168,7 +168,7 @@ var writeTransactionsToDB = function(config, blockData) {
         for (d in blockData.transactions) {
             var txData = blockData.transactions[d];
             txData.timestamp = blockData.timestamp;
-            txData.value = etherUnits.toEther(new BigNumber(txData.value), 'wei');
+            txData.value = etherUnits.toEther(txData.value, 'wei');
             bulkOps.push(txData);
         }
         Transaction.collection.insert(bulkOps, function( err, tx ){

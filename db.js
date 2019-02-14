@@ -55,6 +55,11 @@ var Contract = new Schema(
     "balance": Number,
     "compilerVersion": String,
     "optimization": Boolean,
+
+    "description": String,
+    "logoUrl": String,
+    "timestamp": Number,
+
     "sourceCode": String,
     "abi": String,
     "byteCode": String
@@ -68,18 +73,27 @@ var Transaction = new Schema(
     "blockNumber": {type: Number, index: true},
     "transactionIndex": Number,
     "status":Number,
-    "from": String,
-    "to": String,
+    "from": {type: String, index: true},
+    "to": {type: String, index: true},
     "value": String,
     "gas": Number,
     "contractAddress":String,
     "gasUsed":Number,
     "gasPrice": String,
-    "timestamp": Number,
+    "timestamp": {type: Number, index: true},
     "input": String,
     "witness": String
 });
 
+var InerTransaction = new Schema(
+    {
+        "hash": {type: String},
+        "from": {type: String, index: true},
+        "to": {type: String, index: true},
+        "value": String,
+        "timestamp": Number,
+        "blockNumber": {type: Number}
+    });
 
 var TokenTransfer = new Schema(
     {
@@ -98,9 +112,9 @@ var TokenTransferClass = mongoose.model('TokenTransfer');
 
 var LogEvent = new Schema(
     {
-        "address": String,
+        "address": {type: String, index: true},
         "txHash": {type: String, index: true},
-        "blockNumber": Number,
+        "blockNumber": {type: Number, index: true},
         "contractAdd": String,//same with address
         "timestamp": Number,
         "methodName": String,
@@ -109,7 +123,10 @@ var LogEvent = new Schema(
         "to": String,
         "logIndex": Number,
         "topics": Array,
-        "data": String
+        "data": String,
+
+        "gasUsed":Number,
+        "gasPrice": Number
     });
 mongoose.model('LogEvent', LogEvent);
 
@@ -125,14 +142,17 @@ mongoose.model('Address', Address);
 mongoose.model('Block', Block);
 mongoose.model('Contract', Contract);
 mongoose.model('Transaction', Transaction);
+mongoose.model('InerTransaction', InerTransaction);
 mongoose.model('Witness', Witness);
 module.exports.Block = mongoose.model('Block');
 module.exports.Contract = mongoose.model('Contract');
 module.exports.Transaction = mongoose.model('Transaction');
+module.exports.InerTransaction = mongoose.model('InerTransaction');
 module.exports.TokenTransfer = TokenTransferClass;
 module.exports.Witness = Witness;
 module.exports.LogEvent = mongoose.model('LogEvent');
 module.exports.Address = mongoose.model('Address');
 
-mongoose.connect( 'mongodb://localhost/blockDB' );
+// mongoose.connect( 'mongodb://localhost/blockDB' );
+mongoose.connect('mongodb://etzscan:etz123@localhost:39462/blockDB');
 mongoose.set('debug', false);
