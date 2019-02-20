@@ -53,6 +53,7 @@ var LogEvent = mongoose.model('LogEvent');
 var Witness = mongoose.model('Witness');
 
 function regAddress(address){
+  address = address.toLowerCase();
   address = address.replace(/(^\s*)|(\s*$)/g, "");
   address = address.replace(/\"/g, "");
   if(address.indexOf("0x")!=0)
@@ -177,6 +178,7 @@ module.exports = function(req, res){
           var arr = [];
           for(var i=0; i<addresses; i++){
             balanceObj = {"account":addresses[i],"balance":0};
+            addresses[i] = regAddress(addresses[i]);
             balanceObj.balance = eth.getBalance(addresses[i]).toString();
             arr.push(balanceObj);
           }
@@ -184,6 +186,7 @@ module.exports = function(req, res){
           break;
         case txlist:
           address = requestParam(req, "address");
+          address = regAddress(address);
           var pageSize = requestParamInt(req, "pageSize", 10);
           var transactionPage = requestParamInt(req, "page", 0);
           if(pageSize>100)
@@ -200,7 +203,7 @@ module.exports = function(req, res){
           break;
         case txlistinternal:
           address = requestParam(req, "address");
-          address = address.toLowerCase();
+          address = regAddress(address);
           var transactionPage = requestParamInt(req, "page", 0);
           var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
@@ -216,6 +219,7 @@ module.exports = function(req, res){
           break;
         case getminedblocks:
           address = requestParam(req, "address");
+          address = regAddress(address);
           var page = requestParamInt(req, "page", 0);
           var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
@@ -233,6 +237,7 @@ module.exports = function(req, res){
 
         case getabi:
           address = requestParam(req, "address");
+          address = regAddress(address);
           Contract.findOne({'address':address}, "abi").exec(function(err, doc){
             if(err){
               responseFail(res, respData, err.toString());
@@ -246,6 +251,7 @@ module.exports = function(req, res){
           break;
         case getsourcecode:
           address = requestParam(req, "address");
+          address = regAddress(address);
           Contract.findOne({'address':address}, "sourceCode").exec(function(err, doc){
             if(err){
               responseFail(res, respData, err.toString());
@@ -289,7 +295,7 @@ module.exports = function(req, res){
           break;
         case transactionlist:
           address = requestParam(req, "address");
-          address = address.toLowerCase();
+          address = regAddress(address);
           var transactionPage = requestParamInt(req, "page", 0);
           var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
@@ -321,6 +327,7 @@ module.exports = function(req, res){
           break;
 	  case getLogs:
             address = requestParam(req, "address");
+            address = regAddress(address);
 	          txHash = requestParam(req, "txHash");
             fromBlock = requestParamNum(req, "fromBlock", null);
             toBlock = requestParam(req, "toBlock");
@@ -337,7 +344,6 @@ module.exports = function(req, res){
               responseFail(res, respData, "contract address is needed");
               return;
             }
-            address = address.toLowerCase();
 	          findObj = {'address':address};
             if(txHash){
               if(txHash.indexOf("0x")!=0){
@@ -425,6 +431,7 @@ module.exports = function(req, res){
             break;
           case eth_getTransactionCount:
             address = requestParam(req, "address");
+            address = regAddress(address);
             sendData(res, respData, eth.getTransactionCount(address));
             break;
           case eth_sendRawTransaction:
@@ -443,11 +450,13 @@ module.exports = function(req, res){
             break;
           case eth_getCode:
             address = requestParam(req, "address");
+            address = regAddress(address);
             blockNumber = requestParam(req, "blockNumber");
             sendData(res, respData, eth.getCode(address, blockNumber));
             break;
           case eth_getStorageAt:
             address = requestParam(req, "address");
+            address = regAddress(address);
             position = requestParamInt(req, "position");
             blockNumber = requestParam(req, "blockNumber");
             sendData(res, respData, eth.getStorageAt(address, position, blockNumber));
