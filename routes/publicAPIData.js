@@ -386,9 +386,13 @@ module.exports = function(req, res){
                   let or_topics = []
                   for (let i = 0; i < opr_details.length; i++) {
                     let topic_num = opr_details[i];
+<<<<<<< HEAD
                     let or_topic = {}
                     or_topic["topics." + topic_num] = topicsArr[Number(topic_num)]
                     or_topics.push(or_topic)
+=======
+                    or_topics.push({"topics." + topic_num: topicsArr[Number(topic_num)]})
+>>>>>>> 974409d0814f1a8e0a940c52d944f75628790ea4
                   }
                   or_arr.push({$or: or_topics})
                 }
