@@ -118,7 +118,7 @@ module.exports = function(req, res){
       methodName = req.query.methodName;
       if(!methodName)
         methodName = req.query.action;
-      
+
       switch(methodName){
         case totalETZ:
           totalBlockNum = eth.blockNumber;
@@ -149,7 +149,7 @@ module.exports = function(req, res){
         		ret.currencyunit="USD";
         		ret.totalcapital=value*Number(ret.etzprice);
             		sendData(res, respData, ret);
-        	})	
+        	})
       	  break;
         case balance:
           address = requestParam(req, "address");
@@ -168,7 +168,7 @@ module.exports = function(req, res){
                   responseFail(res, respData, "no miner");
                 }
               }
-            }) 
+            })
           }else{
             sendData(res, respData, eth.getBalance(address).toString());
           }
@@ -194,7 +194,7 @@ module.exports = function(req, res){
           var transactionPage = requestParamInt(req, "page", 0);
           if(pageSize>100)
             pageSize = 100;
-          
+
           transactionFind = Transaction.find({$or: [{"from": address}, {"to": address}]}).sort("-blockNumber").skip(transactionPage*pageSize).limit(pageSize).lean(true);
           transactionFind.exec(function (err, docs) {
             if(err)
@@ -227,7 +227,7 @@ module.exports = function(req, res){
           var pageSize = requestParamInt(req, "pageSize", 10);
           if(pageSize>100)
             pageSize = 100;
-            
+
           var blockFind = Block.findOne( { "miner" : address }).skip(page*pageSize).limit(pageSize).lean(true);
           blockFind.exec(function (err, doc) {
               if (err) {
@@ -335,6 +335,7 @@ module.exports = function(req, res){
             fromBlock = requestParamNum(req, "fromBlock", null);
             toBlock = requestParam(req, "toBlock");
             topics = requestParam(req, "topics");
+            let topic_oprs = requestParam(req, "topic_oprs");
             data = requestParam(req, "data");
             returnFilters = requestParam(req, "returnFilters");
 	          limitNum = requestParam(req, "limit");
@@ -368,7 +369,37 @@ module.exports = function(req, res){
               else
                 findObj.blockNumber = {$lte:toBlock};
             }
-            if(topics){
+            if (topic_oprs && topics) {
+              let oprs_arr = topic_oprs.split(",");
+              let topicsArr = topics.split(",");
+              let or_arr = []
+              for(let n=0; n<topicsArr.length; n++){
+                topicsArr[n] = topicsArr[n].trim();
+                topicsArr[n] = topicsArr[n].toLowerCase();
+              }
+              for (let i = 0; i < oprs_arr.length; i++) {
+                let opr_details = oprs_arr[i].split("_");
+                let opr = opr_details.pop();
+                if (opr == 'and') {
+                  for (let i = 0; i < opr_details.length; i++) {
+                    let topic_num = opr_details[i];
+                    findObj["topics." + topic_num] = topicsArr[Number(topic_num)];
+                  }
+                } else if (opr == 'or') {
+                  let or_topics = []
+                  for (let i = 0; i < opr_details.length; i++) {
+                    let topic_num = opr_details[i];
+                    let or_topic = {}
+                    or_topic["topics." + topic_num] = topicsArr[Number(topic_num)]
+                    or_topics.push(or_topic)
+                  }
+                  or_arr.push({$or: or_topics})
+                }
+              }
+              if (or_arr.length > 0) {
+                findObj["$and"] = or_arr
+              }
+            } else if(topics){
               var topicsArr = topics.split(",");
               for(var n=0; n<topicsArr.length; n++){
                 topicsArr[n] = topicsArr[n].trim();
@@ -380,7 +411,6 @@ module.exports = function(req, res){
             if(data){
               findObj.data = data;
             }
-
             var findOP;
             if(returnFilters){
               returnFilters = returnFilters.split(",");
@@ -481,7 +511,7 @@ module.exports = function(req, res){
 
             sendData(res, respData, eth.estimateGas(obj));
             break;
-          
+
           case tokensupply:
             contractaddress=requestParam(req, "contractaddress");
             Contract.findOne({'address':contractaddress}, "totalSupply").exec(function(err, doc){
@@ -552,7 +582,7 @@ module.exports = function(req, res){
                   // sendData(res, respData, respTable);
                   res.write(respTable);
                   res.end();
-                  
+
                 }
             });
             break;
@@ -562,22 +592,22 @@ module.exports = function(req, res){
             var transactionPage = requestParamInt(req, "page", 0);
             // if(pageSize>100)
             //   pageSize = 100;
-            
+
             req.query.listFormat=1;
             req.query.totalPage = 1;
             req.query.page = transactionPage;
             req.query.pageSize = pageSize;
             witnessListData(req, res);
             break;
-          
+
 
       }
-      
+
     } catch (e) {
       responseFail(res, respData, e.toString());
       console.error(e);
     }
-}; 
+};
 
 function sendData(res, respData, result){
   respData.result = result;
@@ -614,5 +644,5 @@ module.exports.getTotalcapital = function(req, res){
 	totalcapital=value*Number(eventLogList.data.last);
   	res.write(String(totalcapital));
   	res.end();
-})	
+})
 }

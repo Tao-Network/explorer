@@ -4,7 +4,7 @@
         background: #fafafa;
         border: 1px solid #eee;
     }
-    
+
     .tab-v3 .tab-content {
     padding: 15px;
     background: #fafafa;
@@ -14,7 +14,7 @@
 
 <div class="container content">
     <br>
-    
+
     <div class="row tab-v3">
     <div class="col-sm-2">
     <ul class="nav nav-pills nav-stacked">
@@ -39,7 +39,7 @@
     <div class="headline headline-md">
     <h4>Introduction</h4>
     </div>
-    
+
     <br>
     We will show all the Public APIs here. <br> <br>
 
@@ -95,7 +95,7 @@
     <h4>Account APIs</h4>
     </div>
     <br>
-    
+
     <strong>Get a list of 'Normal' Transactions By Address</strong>
     <ul style="list-style-type: none">
     <br>
@@ -146,7 +146,7 @@
     <pre>var Web3 = require('web3');
     var web3 = new Web3(new Web3.providers.HttpProvider());
     var version = web3.version.api;
-                
+
     $.getJSON('https://etzscan.com/publicAPI?module=contract&amp;action=getabi&amp;address=0xc01fbdf458041359a8eeaf03d9991dd8fd8dbd6f', function (data) {
         var contractABI = "";
         contractABI = JSON.parse(data.result);
@@ -154,10 +154,10 @@
             var MyContract = web3.eth.contract(contractABI);
             var myContractInstance = MyContract.at("0xc01fbdf458041359a8eeaf03d9991dd8fd8dbd6f");
             var result = myContractInstance.getBuyPrice();
-            console.log("result : " + result); 
+            console.log("result : " + result);
         } else {
             console.log("Error" );
-        }            
+        }
     });
                                </pre>
     <br>
@@ -192,7 +192,7 @@
     <p-->
     <strong>[BETA] Check Transaction Receipt Status </strong>
     <br>
-    Note: status: 0 = Fail, 1 = Pass. 
+    Note: status: 0 = Fail, 1 = Pass.
     <br>
     </p><ul style="list-style-type: none">
     <li>
@@ -220,7 +220,7 @@
 
     <p></p>
     </div>
-    
+
     <div class="tab-pane fade in table-responsive active" id="blocks">
     <div class="headline headline-md">
     <h4>Blocks APIs</h4>
@@ -250,6 +250,10 @@
         <li>[Optional Parameters] topics: topics filter. multi topic separate with comma. <br>
             such as: ...&topics=value0,,value2&... this exprission will fetch logs that topic0 is value0 and topic2 is value2.<br>
         each value's length is 66(contain:0x)</li>
+        <li>[Optional Parameters] topic_oprs: topics operation. multi operation separate with comma. <br>
+            this parameters explain the relation between the topics above.<br>
+            such as: ...&topic_oprs=0_and,1_2_or... this exprission means that topics0=value0 && (topics1=value1 || topics2=value2).<br>
+            if there is not topic_oprs, then all topics will connect with 'and'.</li>
         <li>[Optional Parameters] data: log data(not index param data)</li>
         <li>[Optional Parameters] returnFilters: return specific fields(full fields as default). multi topic separate with comma.<br>
             such as: ...&returnFilters=address,timestamp,topics,data&...<br>
@@ -269,13 +273,13 @@
     </ul>
     fromBlock and toBlock accepts the blocknumber (integer, NOT hex) or 'latest' (earliest &amp; pending is NOT supported yet)<br>
     <hr>
-    
+
     <ul style="list-style-type:none">
-    <li><pre class="wordwrap"><a href="https://etzscan.com/publicAPI?module=logs&action=getLogs&address=0x866171faf25577a8ba61645d31ffae70047f73f6&fromBlock=1680029&toBlock=1680229&topics=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,,0x000000000000000000000000259b357e09f55698030b30f5b9fc5990916b9a5c&returnFilters=timestamp,topics,-_id&apikey=YourApiKeyToken">https://etzscan.com/publicAPI?module=logs&action=getLogs&address=0x866171faf25577a8ba61645d31ffae70047f73f6&fromBlock=1680029&toBlock=1680229&topics=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,,0x000000000000000000000000259b357e09f55698030b30f5b9fc5990916b9a5c&returnFilters=timestamp,topics,-_id&amp;apikey=YourApiKeyToken</a></pre>
+    <li><pre class="wordwrap"><a href="https://etzscan.com/publicAPI?module=logs&action=getLogs&address=0x013b6e279989aa20819a623630fe678c9f43a48f&&fromBlock=6601088&topic_oprs=0_and,1_2_or&topics=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,0x000000000000000000000000D0011bC3b4b2354517529fEF2310E1b5326E0c89,0x000000000000000000000000D0011bC3b4b2354517529fEF2310E1b5326E0c89&returnFilters=timestamp,topics,-_id&apikey=YourApiKeyToken">https://etzscan.com/publicAPI?module=logs&action=getLogs&address=0x013b6e279989aa20819a623630fe678c9f43a48f&&fromBlock=6601088&topic_oprs=0_and,1_2_or&topics=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,0x000000000000000000000000D0011bC3b4b2354517529fEF2310E1b5326E0c89,0x000000000000000000000000D0011bC3b4b2354517529fEF2310E1b5326E0c89&returnFilters=timestamp,topics,-_id&apikey=YourApiKeyToken</a></pre>
     </li>
     </ul>
     <br>
-    
+
     </div>
     <div class="tab-pane fade in table-responsive" id="proxy">
     <div class="headline headline-md">
@@ -501,11 +505,11 @@
 
     <script type="text/javascript">
         var hash = window.location.hash.substring(1);
-        $(document).ready(function () {      
+        $(document).ready(function () {
             if (hash != '') {
-                activaTab(hash);                                
+                activaTab(hash);
             }
-        }); 
+        });
         function activaTab(tab) {
             $('.nav-pills a[href="#' + tab + '"]').tab('show');
         };
@@ -515,7 +519,7 @@
                 history.pushState("", document.title, window.location.pathname);
             } else {
                 window.location.hash = strhash;
-            }            
+            }
         }
 
     </script>
