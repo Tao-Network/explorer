@@ -53,13 +53,16 @@ var LogEvent = mongoose.model('LogEvent');
 var Witness = mongoose.model('Witness');
 
 function regAddress(address){
-  address = address.toLowerCase();
-  address = address.replace(/(^\s*)|(\s*$)/g, "");
-  address = address.replace(/\"/g, "");
-  if(address.indexOf("0x")!=0)
-    address = "0x"+address;
-  return address;
+   if(address){
+       address = address.toLowerCase();
+       address = address.replace(/(^\s*)|(\s*$)/g, "");
+       address = address.replace(/\"/g, "");
+       if(address.indexOf("0x")!=0)
+         address = "0x"+address;
+   }
+   return address;
 }
+
 
 function httpReq(url, cb){
 	req = http.request(url, function(res) {
