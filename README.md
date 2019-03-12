@@ -15,16 +15,13 @@ npm i
 * Centos: `yum install -y mongodb`
 * Ubuntu: `sudo apt-get install -y mongodb-org`
 
-#### config rpc
-* open "routes/web3relay.js" and modify "HttpProvider" usually by "http://localhost:8545". 
-
 #### Populate the DB
 * This will fetch and parse the entire blockchain.
 * Configuration file: `/tools/grabber.js`
-modify the var "config" (near the file end) like follow basic settings:
+* modify the var "config" (near the file end) like follow basic settings:
 ```
 var config = {
-    "rpc": 'http://localhost:8545',
+    "rpc": 'http://localhost:9646',
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,
@@ -40,6 +37,7 @@ var config = {
 *  When ```listenOnly``` is set to ```true```, the ```blocks``` option is ignored. 
 Note 2: ```terminateAtExistingDB``` and ```listenOnly``` are mutually exclusive. Do not use ```terminateAtExistingDB``` when in ```listenOnly``` mode.</b>
 
-### Run Grabber:
-`nohup node ./tools/grabber.js &`
-Leave this running in the background to continuously fetch new blocks.
+#### Run Grabber:
+```
+nohup node ./tools/grabber.js >> ./grabber.log 2>&1 &  
+```
