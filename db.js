@@ -31,7 +31,7 @@ var Witness = new Schema(
         "blocksNum": Number,//mine block count
         "lastCountTo": Number,//block height
         "witness": {type: String, index: {unique: true}},
-
+        "version": {type: String, index: true},
         "status":Boolean,
         "hash":String,
         "reward":Number,
