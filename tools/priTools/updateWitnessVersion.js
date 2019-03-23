@@ -14,6 +14,7 @@ async function test(){
         {$set:{"version": version}}
       ).exec()
     }
+    console.log("finished");
   }
 }
 
