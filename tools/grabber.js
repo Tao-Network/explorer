@@ -1,7 +1,7 @@
 //add timestamp for console.log()
 (function() { //add timestamp to console.log and console.error(from http://yoyo.play175.com)
     var date = new Date();
-  
+
     function timeFlag() {
         date.setTime(Date.now());
         var m = date.getMonth() + 1;
@@ -27,7 +27,7 @@
         }
     }
   })();
-  
+
 require( '../db.js' );
 var etherUnits = require("../lib/etherUnits.js");
 var BigNumber = require('bignumber.js');
@@ -105,7 +105,7 @@ var intervalBlocks = function(_intervalTime) {
     var lastBlockNum;
     var delayBlock = 5;//t delay grabber block num
     intervalTime = _intervalTime;
-        
+
     var blockFind = Block.findOne({}, "number").sort('-number');
     blockFind.exec(function (err, doc) {
         if(err){
@@ -116,7 +116,7 @@ var intervalBlocks = function(_intervalTime) {
             lastBlockNum=0;
         else
             lastBlockNum = doc.number-1;//Avoid incomplete collection of the last block in the database
-            
+
         //remove lastest Block data in DB to avoid incomplete data
         Block.collection.remove({'number':lastBlockNum+1});
         LogEvent.collection.remove({'blockNumber':lastBlockNum+1});
@@ -162,9 +162,9 @@ var intervalBlocks = function(_intervalTime) {
         //         console.log(err);
         //     }
         // }, 1000);
-            
+
     });
-        
+
 }
 
 //listen new Block by watch
@@ -200,7 +200,7 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
     var desiredBlockHashOrNumber;
     // check if done
     if(blockHashOrNumber == undefined) {
-        return; 
+        return;
     }
 
     if (typeof blockHashOrNumber === 'object') {
@@ -235,7 +235,7 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
             setTimeout(restart, 3000);
     }
 }
-    
+
 function restart(){
     connectWeb3();
     if(newBlocksWatch)
@@ -264,7 +264,7 @@ var writeBlockToDB = function(config, blockData) {
         } else {
             //update witness reward
             Witness.update({"witness":blockData.witness},
-            {$set:{"lastCountTo":blockData.number, "hash":blockData.hash, "miner":blockData.miner, "timestamp":blockData.timestamp, "status":true}, 
+            {$set:{"lastCountTo":blockData.number, "hash":blockData.hash, "miner":blockData.miner, "timestamp":blockData.timestamp, "status":true},
             $inc:{"blocksNum":1, "reward":0.3375}},
             {upsert: true},
             function (err, data) {
@@ -275,7 +275,7 @@ var writeBlockToDB = function(config, blockData) {
 
             if(!('quiet' in config && config.quiet === true)) {
                 //console.log('DB successfully written for block number ' + blockData.number.toString() );
-            }            
+            }
         }
       });
 }
@@ -315,7 +315,7 @@ var upsertAddress=function(miner, addrs){
                     }else if(!doc || doc.n==0){
                         updateFromNode(addrs[i]);
                     }
-                        
+
                 }
             )
         }
@@ -324,7 +324,7 @@ var upsertAddress=function(miner, addrs){
 
 var updateFromNode = function(addr){
     var balance = web3.eth.getBalance(addr);
-    if(balance<10000000000000000000)//save address which balance is great than 10 ETZ 
+    if(balance<10000000000000000000)//save address which balance is great than 10 ETZ
         return;
     Address.insertMany([{"addr":addr, "balance":Number(etherUnits.toEther(balance, 'wei'))}], function (err, doc) {
         if(err){
@@ -364,14 +364,14 @@ var writeTransactionsToDB = function(blockData) {
                     var innerFrom = receiptData.intxs[k].from;
                     var innerTo = receiptData.intxs[k].to;
                     var innerValue = etherUnits.toEther(receiptData.intxs[k].value, 'wei');
-                    innerTxs.push({"from":innerFrom, "to":innerTo, "value":innerValue,"blockNumber":blockData.number, "timestamp":blockData.timestamp});
+                    innerTxs.push({hash: txData.hash,"from":innerFrom, "to":innerTo, "value":innerValue,"blockNumber":blockData.number, "timestamp":blockData.timestamp});
                     addrs.push(innerFrom, "-"+innerValue);
                     addrs.push(innerTo, innerValue);
                 }
             }
             if(receiptData.status!=null)
                 txData.status = receiptData.status;
-            
+
             if(txData.input && txData.input.length>2){// contract create, Event logs of internal transaction
                 if(txData.to == null){//contract create
                     //console.log("contract create at tx:"+txData.hash);
@@ -418,9 +418,9 @@ var writeTransactionsToDB = function(blockData) {
                     }
                     //write to db
                     Contract.update(
-                        {address: receiptData.contractAddress}, 
-                        {$setOnInsert: contractdb}, 
-                        {upsert: true}, 
+                        {address: receiptData.contractAddress},
+                        {$setOnInsert: contractdb},
+                        {upsert: true},
                         function (err, data) {
                             if(err)
                                 console.log(err);
@@ -443,13 +443,13 @@ var writeTransactionsToDB = function(blockData) {
                         transferData.transactionHash= txData.hash;
                         transferData.blockNumber= blockData.number;
                         transferData.contractAdd= txData.to;
-                        
+
                         transferData.timestamp = blockData.timestamp;
                         //write transfer transaction into db
                         TokenTransfer.update(
-                            {transactionHash: transferData.transactionHash}, 
-                            {$setOnInsert: transferData}, 
-                            {upsert: true}, 
+                            {transactionHash: transferData.transactionHash},
+                            {$setOnInsert: transferData},
+                            {upsert: true},
                             function (err, data) {
                                 if(err)
                                     console.log(err);
@@ -501,11 +501,11 @@ var writeTransactionsToDB = function(blockData) {
                             //console.log('DB successfully written for block ' + blockData.transactions.length.toString() );
                         }
                     });
-                } 
+                }
             }
 
             //drop out masterNode ping transactions
-            if(!(txData.to == pingTXAddr && txData.value == "0" && 
+            if(!(txData.to == pingTXAddr && txData.value == "0" &&
                 (txData.gasUsed==34957||txData.gasUsed==49957||txData.gasUsed==34755||txData.gasUsed==19755||txData.gasUsed==44550))
                 ){
                 if(Number(txData.value)>0){
@@ -522,7 +522,7 @@ var writeTransactionsToDB = function(blockData) {
         upsertAddress(blockData.miner, addrs);
 
         //write innerTxs to db
-        if(innerTxs!=null){ 
+        if(innerTxs!=null){
             InerTransaction.collection.insert(innerTxs, function( err, tx ){
                 if ( typeof err !== 'undefined' && err ) {
                     if (err.code == 11000) {
@@ -584,11 +584,11 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
           if (c === 0) {
             grabBlock(config, web3, {'start': firstBlock, 'end': lastBlock});
           } else if (expectedBlocks > c) {
-            //console.log("Missing: " + JSON.stringify(expectedBlocks - c));  
-            var midBlock = firstBlock + parseInt((lastBlock - firstBlock)/2); 
+            //console.log("Missing: " + JSON.stringify(expectedBlocks - c));
+            var midBlock = firstBlock + parseInt((lastBlock - firstBlock)/2);
             blockIter(web3, firstBlock, midBlock, config);
             blockIter(web3, midBlock + 1, lastBlock, config);
-          } else 
+          } else
             return;
         })
     }
@@ -610,17 +610,17 @@ setInterval(function(){
             }
             return;
         }
-        
+
         writeTransactionsToDB(_blockData);
     }
 }, 3000);
 
 var config = {
-    // "rpc": 'http://192.168.199.214:9646',//t 
+    // "rpc": 'http://192.168.199.214:9646',//t
     "rpc": 'http://localhost:9646',
     // "rpc": 'http://etzrpc.org:80',
     // "rpc": 'http://13.115.55.39:9646',
-    
+
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,
@@ -629,4 +629,3 @@ var config = {
 };
 
 grabBlocks();
-
