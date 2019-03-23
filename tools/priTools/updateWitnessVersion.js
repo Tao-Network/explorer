@@ -14,3 +14,5 @@ async function test(){
     // ).exec()
   }
 }
+
+test()

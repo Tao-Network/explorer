@@ -154,5 +154,5 @@ module.exports.LogEvent = mongoose.model('LogEvent');
 module.exports.Address = mongoose.model('Address');
 
 // mongoose.connect( 'mongodb://localhost/blockDB' );
-mongoose.connect('mongodb://etzscan:etz123@localhost:39462/blockDB');
+mongoose.connect('mongodb://etzscan:etz123@localhost:39462/blockDB', {useMongoClient:true});
 mongoose.set('debug', false);
