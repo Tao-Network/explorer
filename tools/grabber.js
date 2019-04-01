@@ -264,8 +264,9 @@ var writeBlockToDB = function(config, blockData) {
         } else {
             //update witness reward
             let version;
-            if (blockData.extraData.length > 12) {
-              version = blockData.extraData.slice(6,8)+"."+blockData.extraData.slice(8,10)+"."+blockData.extraData.slice(10,12);
+            let extraData = hex2ascii(blockData.extraData);
+            if (extraData && extraData.length > 5) {
+              version = extraData.charCodeAt(3)+"."+extraData.charCodeAt(4)+"."+extraData.charCodeAt(5);
             }
             Witness.update({"witness":blockData.witness},
             {$set:{"lastCountTo":blockData.number, "version": version, "hash":blockData.hash, "miner":blockData.miner, "timestamp":blockData.timestamp, "status":true},
@@ -618,6 +619,15 @@ setInterval(function(){
         writeTransactionsToDB(_blockData);
     }
 }, 3000);
+
+var hex2ascii = function (hexIn) {
+    var hex = hexIn.toString();
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
+
 
 var config = {
     // "rpc": 'http://192.168.199.214:9646',//t

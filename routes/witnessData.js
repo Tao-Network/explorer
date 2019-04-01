@@ -2,6 +2,7 @@
 var mongoose = require( 'mongoose' );
 var Block = mongoose.model('Block');
 var Witness = mongoose.model('Witness');
+var web3 = require("./web3relay").web3;
 var oneDaySeconds = 86400//24*60*60;//seconds of one day
 
 module.exports = function(req, res){
@@ -20,14 +21,14 @@ module.exports = function(req, res){
       //find witness block
       var blockFind = Block.find({'witness':witness}, "number timestamp gasUsed hash miner").sort('-number').skip(page*pageSize).limit(pageSize).lean(true);
       blockFind.exec(function (err, docs) {
-          if(err) 
+          if(err)
             resultData.blocks=[];
           else
             resultData.blocks=docs;
           respData = JSON.stringify(resultData);
           res.write(respData);
-          res.end(); 
-        });      
+          res.end();
+        });
     } catch (e) {
       console.error(e);
       res.write('{}');
@@ -86,13 +87,13 @@ module.exports = function(req, res){
       //         respData = JSON.stringify(resultData);
       //         res.write(respData);
       //         res.end();
-      
+
       //         //update witness info in db
       //         if(_witnessDoc == null){//insert witnessDoc
       //           Witness.update(
-      //             {'witness': witness}, 
-      //             {$setOnInsert: witnessDoc}, 
-      //             {upsert: true},  
+      //             {'witness': witness},
+      //             {$setOnInsert: witnessDoc},
+      //             {upsert: true},
       //             function (err, data) {
       //                 if(err)
       //                     console.log(err);
@@ -100,11 +101,11 @@ module.exports = function(req, res){
       //           );
       //         }else{//update witnessDoc
       //           Witness.update(
-      //             {'witness': witness}, 
-      //             // {$setOnInsert: witnessDoc}, 
-      //             // {upsert: true}, 
-      //             {$set:{'lastCountTo':witnessDoc.lastCountTo, 'blocksNum':witnessDoc.blocksNum}}, 
-      //             {multi: false, upsert: false}, 
+      //             {'witness': witness},
+      //             // {$setOnInsert: witnessDoc},
+      //             // {upsert: true},
+      //             {$set:{'lastCountTo':witnessDoc.lastCountTo, 'blocksNum':witnessDoc.blocksNum}},
+      //             {multi: false, upsert: false},
       //             function (err, data) {
       //                 if(err)
       //                     console.log(err);
