@@ -44,6 +44,7 @@ module.exports = function(app){
   app.post('/data', getData);
   app.get('/publicAPI', publicAPI);//all public APIs
   app.get('/totaletz', publicAPI.getTotalEtz);
+  app.get('/circulatingetz', publicAPI.circulatingetz);
   app.get('/health', publicAPI.getHealth);
   app.get('/totalcapital', publicAPI.getTotalcapital);
 

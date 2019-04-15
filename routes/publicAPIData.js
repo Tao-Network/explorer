@@ -629,6 +629,14 @@ module.exports.getTotalEtz = function(req, res){
   res.end();
 }
 
+module.exports.circulatingetz = function(req, res){
+  totalBlockNum = eth.blockNumber;
+  respData = 196263376+0.45*totalBlockNum;
+  respData = respData*0.5;
+  res.write(String(respData));
+  res.end();
+}
+
 module.exports.getHealth = function(req, res){
   res.write("I am ok!");
   res.end();
