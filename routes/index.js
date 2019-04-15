@@ -22,18 +22,18 @@ module.exports = function(app){
   var transactionData = require('./transactionData');
   var tokenTransfer = require('./tokenTransfer');
   var witnessData = require('./witnessData');
-  var witnessListData = require('./witnessListData');  
+  var witnessListData = require('./witnessListData');
   var compile = require('./compiler');
   var fiat = require('./fiat');
   var stats = require('./stats');
   var eventLog = require('./eventLog.js');
   var publicAPI = require("./publicAPIData");
-  
 
 
-  /* 
+
+  /*
     Local DB: data request format
-    { "address": "0x1234blah", "txin": true } 
+    { "address": "0x1234blah", "txin": true }
     { "tx": "0x1234blah" }
     { "block": "1234" }
   */
@@ -49,13 +49,13 @@ module.exports = function(app){
 
   //app.post('/daorelay', DAO);
   app.post('/addressListData', addressListData);
-  app.get('/addressListData', addressListData); 
+  app.get('/addressListData', addressListData);
   app.post('/address-list-data', addressListData);
-  app.get('/address-list-data', addressListData); 
-  app.post('/tokenrelay', Token);  
-  app.post('/tokenListData', tokenListData); 
-  app.post('/contractListData', contractListData); 
-  app.post('/transactionRelay', transactionData); 
+  app.get('/address-list-data', addressListData);
+  app.post('/tokenrelay', Token);
+  app.post('/tokenListData', tokenListData);
+  app.post('/contractListData', contractListData);
+  app.post('/transactionRelay', transactionData);
   app.post('/tokenTransfer', tokenTransfer);
   app.post('/witnessData', witnessData);
   app.post('/witnessListData', witnessListData);
@@ -94,15 +94,15 @@ var getAddr = function(req, res){
           res.end();
         }
         if (docs)
-          data.data = filters.filterTX(docs, addr);      
-        else 
+          data.data = filters.filterTX(docs, addr);
+        else
           data.data = [];
-        
+
         res.write(JSON.stringify(data));
         res.end();
       });
     // })
-  
+
 };
 
 var addrTXcounts = function(req, res){
@@ -118,7 +118,7 @@ var addrTXcounts = function(req, res){
     res.end();
   }
 }
- 
+
 
 
 var getBlock = function(req, res) {
@@ -146,7 +146,7 @@ var getBlock = function(req, res) {
       }else{
         resultBlockData = {};
       }
-        
+
     } else {
       var blocks = filters.filterBlocks([doc]);
       resultBlockData = blocks[0];
@@ -189,11 +189,11 @@ var getData = function(req, res){
       var lim = MAX_ENTRIES;
     else
       var lim = parseInt(limit);
-    
+
     DATA_ACTIONS[action](lim, res);
 
   } else {
-  
+
     console.error("Invalid Request: " + action)
     res.status(400).send();
   }
@@ -209,9 +209,9 @@ var getTotalEtz = function(req, res) {
     res.write(total.toString());
     res.end();
   });
-} 
+}
 
-/* 
+/*
   temporary blockstats here
 */
 var latestBlock = function(req, res) {
@@ -221,7 +221,7 @@ var latestBlock = function(req, res) {
     res.write(JSON.stringify(doc));
     res.end();
   });
-} 
+}
 
 var getLatest = function(lim, res, callback) {
   var blockFind = Block.find({}, "number transactions timestamp miner extraData")
@@ -287,7 +287,7 @@ var sendBlocks = function(lim, res) {
       res.end();
       return;
     }
-    
+
     docs = filters.filterBlocks(docs);
     var result = {"blocks": docs};
     if(docs.length>1){
@@ -300,7 +300,7 @@ var sendBlocks = function(lim, res) {
         if(docs[i].txs)
           totalTXs+=docs[i].txs.length;
       }
-      
+
       result.TPS = totalTXs/costTime;
       result.TPS = Math.round(result.TPS*1000)/1000;
       result.meanDayRewards = 0.3375*docs[0].number/((docs[0].timestamp-firstDayTime)/oneDaySeconds);
@@ -339,6 +339,6 @@ const DATA_ACTIONS = {
 //       transforEvent = TokenTransferGrabber.GetTransferEvent(doc[i].abi, doc[i].address)
 //       TokenTransferGrabber.ListenTransferTokens(transforEvent);
 //     }
-    
+
 //   }
 // })
