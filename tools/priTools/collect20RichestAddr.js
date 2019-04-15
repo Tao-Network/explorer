@@ -9,7 +9,7 @@ var web3 = new Web3(new Web3.providers.HttpProvider(rpc));
 async function test(){
   let addresses = await Address.find({}).limit(1000).sort({balance:-1}).exec();
   let result = new Array(21);
-  result.fill(0);
+  result.fill({addr:"",balance:0});
   for (let i = 0; i < addresses.length; i++) {
     let balance = web3.eth.getBalance(addresses[i].addr);
     balance = web3.fromWei(balance, "ether");
@@ -22,7 +22,7 @@ async function test(){
         result[i-1] = temp
       }
     }
-    console.log(addresses[i].addr, balancenum);
+    // console.log(addresses[i].addr, balancenum);
   }
   console.log(result);
 }
