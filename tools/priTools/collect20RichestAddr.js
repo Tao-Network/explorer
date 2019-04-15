@@ -7,12 +7,22 @@ var rpc = "http://localhost:9646";
 var web3 = new Web3(new Web3.providers.HttpProvider(rpc));
 
 async function test(){
-  let addresses = await Address.find({}).limit(20).sort({balance:-1}).exec();
+  let addresses = await Address.find({}).limit(1000).sort({balance:-1}).exec();
+  let result = new Array(21);
+  result.fill(0);
   for (var i = 0; i < addresses.length; i++) {
     let balance = web3.eth.getBalance(addresses[i].addr);
-    balance = web3.fromWei(balance, "ether").toString();
-    console.log(addresses[i].addr, balance, addresses[i].balance);
+    balance = web3.fromWei(balance, "ether");
+    result[20] = {addr:addresses[i].addr,balance:balance};
+    for (var i = result.length - 1; i > 0; i--) {
+      if (result[i].balance > result[i-1].balance) {
+        let temp = result[i];
+        result[i] = result[i-1];
+        result[i-1] = temp
+      }
+    }
   }
+  console.log(result);
 }
 
 test()
