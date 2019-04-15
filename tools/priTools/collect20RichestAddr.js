@@ -21,6 +21,7 @@ async function test(){
         result[i-1] = temp
       }
     }
+    console.log(addresses[i].addr, balance);
   }
   console.log(result);
 }
