@@ -10,11 +10,11 @@ async function test(){
   let addresses = await Address.find({}).limit(1000).sort({balance:-1}).exec();
   let result = new Array(21);
   result.fill(0);
-  for (var i = 0; i < addresses.length; i++) {
+  for (let i = 0; i < addresses.length; i++) {
     let balance = web3.eth.getBalance(addresses[i].addr);
     balance = web3.fromWei(balance, "ether");
     result[20] = {addr:addresses[i].addr,balance:balance};
-    for (var i = result.length - 1; i > 0; i--) {
+    for (let i = result.length - 1; i > 0; i--) {
       if (result[i].balance > result[i-1].balance) {
         let temp = result[i];
         result[i] = result[i-1];
