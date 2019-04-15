@@ -1,7 +1,7 @@
 require( '../../db.js' );
 var mongoose = require('mongoose');
 var Address = mongoose.model('Address');
-var web3 = require('./web3relay').web3;
+var web3 = require('./../../router/web3relay').web3;
 
 async function test(){
   let addresses = await Address.find({}).limit(20).sort({balance:-1}).exec();
