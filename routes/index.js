@@ -47,6 +47,7 @@ module.exports = function(app){
   app.get('/circulatingetz', publicAPI.circulatingetz);
   app.get('/health', publicAPI.getHealth);
   app.get('/totalcapital', publicAPI.getTotalcapital);
+  app.get('/mscirculatingvalue', msCirculatingValue);
 
   //app.post('/daorelay', DAO);
   app.post('/addressListData', addressListData);
@@ -175,6 +176,39 @@ var getTx = function(req, res){
   });
 
 };
+
+function httpReq(url, cb){
+	req = http.request(url, function(res) {
+	var respData="";
+	res.setEncoding('utf8');
+	res.on('data', function(chunk) {
+		if(cb)
+			respData+=chunk;
+		}).on('end', function() {
+			if(cb){
+				cb(respData);
+			}
+		}).on('error', function(err) {
+			console.log(err.toString());
+		});
+		});
+	req.on('error', function(err){
+	console.log(err.toString());
+	});
+	req.end();
+}
+
+
+var msCirculatingValue = function(req, res) {
+  let balance = web3relay.web3.eth.getBalance("0x000000000000000000000000000000000000000a");
+  http.httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+    eventLogList = JSON.parse(eventLogList);
+    console.log("eventLogList",eventLogList);
+    totalcapital=balance*Number(eventLogList.data.last);
+    res.write(String(totalcapital));
+    res.end();
+  })
+}
 
 
 /*
