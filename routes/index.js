@@ -1,4 +1,5 @@
 var mongoose = require( 'mongoose' );
+const http = require('http');
 
 var Block     = mongoose.model( 'Block' );
 var Transaction = mongoose.model( 'Transaction' );
@@ -201,7 +202,7 @@ function httpReq(url, cb){
 
 var msCirculatingValue = function(req, res) {
   let balance = web3relay.web3.eth.getBalance("0x000000000000000000000000000000000000000a");
-  http.httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
     eventLogList = JSON.parse(eventLogList);
     console.log("eventLogList",eventLogList);
     totalcapital=balance*Number(eventLogList.data.last);
