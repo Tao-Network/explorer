@@ -44,7 +44,7 @@ module.exports = function(req, res) {
     res.status(400).send();
     res.end();
   }
-    
+
   if (req.body.action=="compile") {
     compileSolc(req, res);
   } else if (req.body.action=="find") {
@@ -63,7 +63,7 @@ var compileSolc = function(req, res) {
   var input = req.body.code;
   var optimization = (req.body.optimization) ? true : false;
   var optimise = (optimization) ? 1 : 0;
-  
+
   var bytecode = eth.getCode(address);
   if (bytecode.substring(0,2)=="0x")
     bytecode = bytecode.substring(2);
@@ -104,8 +104,8 @@ var compileSolc = function(req, res) {
         var output = targetSolc.compile(inputJsonStr);
         testValidCode(output, data, bytecode, res);
       } else {
-        solc.loadRemoteVersion(version, function(err, solcV) { 
-          console.log("on loadRemoteVersion:"+version); 
+        solc.loadRemoteVersion(version, function(err, solcV) {
+          console.log("on loadRemoteVersion:"+version);
           if (err) {
             console.error(err);
             data.valid = false;
@@ -126,7 +126,7 @@ var compileSolc = function(req, res) {
             // var output = targetSolc.compile(inputJsonStr, onCompile);
             // var output = targetSolc.compileStandard(inputJsonStr, onCompile);
             // var output = targetSolc.compileStandardWrapper(inputJsonStr, onCompile);
-            console.log("output:",output);
+            // console.log("output:",output);
             output = JSON.parse(output);
             testValidCode(output, data, bytecode, res);
           }
@@ -204,12 +204,12 @@ var checkERC = function(abi){
       isERC20 = true;
     }
   }
-  
+
   if(isERC223)
     return 3;
   else if(isERC20)
     return 2;
-  
+
   return 0;
 }
 
@@ -225,11 +225,11 @@ var testValidCode = function(output, data, bytecode, response) {
     response.end();
     return;
   }
-  
+
   var targetContract = allContractObj[targetContractName]
   var concatByteCode = targetContract.evm.bytecode.object;
   for (var contractName in allContractObj) {
-    verifiedContracts.push({"name": contractName, 
+    verifiedContracts.push({"name": contractName,
                             "abi": JSON.stringify(allContractObj[contractName].abi),
                             "bytecode": allContractObj[contractName].evm.bytecode.object});
   }
@@ -239,7 +239,7 @@ var testValidCode = function(output, data, bytecode, response) {
   // console.log('bytecode by current compile: ' + concatByteCode);
 
   // console.log();
-  // reject special msg 
+  // reject special msg
   var testCode = bytecode.substring(10,);
   var endIndex = testCode.length;
   if(testCode.indexOf("7a7a72305820")>-1)
@@ -268,11 +268,11 @@ var testValidCode = function(output, data, bytecode, response) {
     //write to db
     var  ERCType = checkERC(data.abi);
     data.ERC = ERCType;
-    
+
     Contract.update(
-      {address: data.address}, 
-      {$set:{'ERC':data.ERC, 'compilerVersion':data.compilerVersion, 'optimization':data.optimization, 'contractName':data.contractName, 'sourceCode':data.sourceCode, 'abi':data.abi}}, 
-      {multi: false, upsert: false}, 
+      {address: data.address},
+      {$set:{'ERC':data.ERC, 'compilerVersion':data.compilerVersion, 'optimization':data.optimization, 'contractName':data.contractName, 'sourceCode':data.sourceCode, 'abi':data.abi}},
+      {multi: false, upsert: false},
       function (err, data) {
         if(err)
           console.log(err);
@@ -286,9 +286,7 @@ var testValidCode = function(output, data, bytecode, response) {
     response.end();
     return;
   }
-    
 
-  
+
+
 }
-
-
