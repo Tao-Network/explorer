@@ -139,6 +139,9 @@ module.exports = function(req, res){
           res.end();
       });
     } else if (action == "realcount") {
-      res.end(masternodeContract.count.call());
+      console.log(111111);
+      let count = masternodeContract.count.call();
+      console.log(count);
+      res.end(count);
     }
   }
