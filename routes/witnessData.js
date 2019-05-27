@@ -3,6 +3,7 @@ var mongoose = require( 'mongoose' );
 var Block = mongoose.model('Block');
 var Witness = mongoose.model('Witness');
 var web3 = require("./web3relay").web3;
+var { masternodeContract } = require('./web3relay');
 var oneDaySeconds = 86400//24*60*60;//seconds of one day
 
 module.exports = function(req, res){
@@ -137,5 +138,7 @@ module.exports = function(req, res){
           }
           res.end();
       });
+    } else if (action == "realcount") {
+      res.end(masternodeContract.count.call());
     }
   }

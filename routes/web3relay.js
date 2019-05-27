@@ -6,9 +6,11 @@
 
 var Web3 = require("web3");
 var web3;
+var masternodeContract;
 
 var BigNumber = require('bignumber.js');
 var etherUnits = require(__lib + "etherUnits.js")
+const {masternodeAbi} = require('./../contractAbis');
 
 var getLatestBlocks = require('./index').getLatestBlocks;
 var filterBlocks = require('./filters').filterBlocks;
@@ -18,14 +20,15 @@ var filterTrace = require('./filters').filterTrace;
 if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
-  // web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.199.214:9646"));//t 
+  // web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.199.214:9646"));//t
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+  masternodeContract = web3.eth.contract(masternodeAbi).at('0x000000000000000000000000000000000000000a');
   // web3 = new Web3(new Web3.providers.HttpProvider("http://etzrpc.org:80"));
   // web3 = new Web3(new Web3.providers.HttpProvider("http://13.115.55.39:9646"));
 }
 
 
-if (web3.isConnected()) 
+if (web3.isConnected())
   console.log("Web3 connection established");
 else
   throw "No connection";
@@ -64,7 +67,7 @@ exports.getBlock = function(blockNumber){
 
 exports.data = function(req, res){
   //console.log("web3relay data :"+req.client.remoteAddress+":"+req.client.remotePort);
-  
+
   if ("tx" in req.body) {
     var txHash = req.body.tx.toLowerCase();
     if(txHash.indexOf('0x')!=0)
@@ -104,8 +107,8 @@ exports.data = function(req, res){
   } else if ("addr_trace" in req.body) {//internalTX
     var addr = req.body.addr_trace.toLowerCase();
     // need to filter both to and from
-    // from block to end block, paging "toAddress":[addr], 
-    // start from creation block to speed things up 
+    // from block to end block, paging "toAddress":[addr],
+    // start from creation block to speed things up
     // TODO: store creation block
     var filter = {"fromBlock":"0x1d4c00", "toAddress":[addr]};
     web3.trace.filter(filter, function(err, tx) {
@@ -145,7 +148,7 @@ exports.data = function(req, res){
     }
     if (options.indexOf("balance") > -1) {
       try {
-        addrData["balance"] = web3.eth.getBalance(addr);  
+        addrData["balance"] = web3.eth.getBalance(addr);
         addrData["balance"] = etherUnits.toEther(addrData["balance"], 'wei');
       } catch(err) {
         console.error("AddrWeb3 error :" + err);
@@ -153,7 +156,7 @@ exports.data = function(req, res){
       }
     }
     if (options.indexOf("count") > -1) {
-      // 'count' calculating is turned to db 
+      // 'count' calculating is turned to db
       // try {
       //    addrData["count"] = web3.eth.getTransactionCount(addr);
       //    console.log("count:"+addrData["count"]);
@@ -163,8 +166,8 @@ exports.data = function(req, res){
       // }
       addrData["count"] = 1;
     }
-    
-   
+
+
     res.write(JSON.stringify(addrData));
     res.end();
 
@@ -194,5 +197,4 @@ exports.data = function(req, res){
 
 exports.web3 = web3;
 exports.eth = web3.eth;
-
-  
+exports.masternodeContract = masternodeContract;
