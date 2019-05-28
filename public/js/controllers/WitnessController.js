@@ -19099,13 +19099,16 @@ angular.module('BlocksApp').controller('WitnessController', function($stateParam
       });
     }
 
-    var oneDaySeconds = 86400//24*60*60;//seconds of one day
-    var dayBefore = 6;
+    var oneDaySeconds = 86400 //24*60*60;//seconds of one day
+    var weekdays = 7 ;//24*60*60;//seconds of one day
+    var weekdayNumber = 49;
+    var weekBefore = 6;
+
     var historyInfo = function(){
         $http({
             method: 'POST',
             url: '/witnessData',
-            data: {"action":"historyCount", "witness": witness, "dayBefore":dayBefore}
+            data: {"action":"historyCount", "witness": witness, "dayBefore":weekBefore}
           }).success(function(respData) {
             // console.log(respData);
             $scope.weekMeanRewards = respData.weekMeanRewards;
@@ -19116,15 +19119,22 @@ angular.module('BlocksApp').controller('WitnessController', function($stateParam
             var startTime = fromDayTime;
             var endTime = fromDayTime;
             var mineBlockNum = 0;
-            for(var i=0; i<=dayBefore; i++){
+            // 处理星期几
+            var mydate=new Date();
+            var mydayInWeek=mydate.getDay();//获取存储当前日期
+            for(var i=0; i<= weekdayNumber; i++){
                 startTime = endTime;
-                endTime+=oneDaySeconds;
+                weekNth= String(parseInt((weekdayNumber-i)/weekdays));
                 mineBlockNum = 0;
-                dayLable = String(dayBefore-i);
+                dayLable = String(parseInt((weekdayNumber-i)/weekdays));
+
+                endTime += ((oneDaySeconds*weekdays*((weekdayNumber-i)/weekdays)) + (weekdayNumber%7)*oneDaySeconds);
+           
+               
                 if(dayLable=="0"){
-                    dayLable = "today";
+                    dayLable = "this week";
                 }else{
-                    dayLable = dayLable+" days ago"
+                    dayLable = weekNth +" weeks ago";
                 }
                     
                 labelList.push(dayLable);
