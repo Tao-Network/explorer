@@ -96,7 +96,8 @@ var compileSolc = function(req, res) {
   inputJsonStr = JSON.stringify(inputJson);
 
   var targetSolc = soliCompCache[version];
-  if(!targetSolc){
+  // if(!targetSolc){ 缓存不定时失效
+    if(true){
     try {
       // latest version doesn't need to be loaded remotely
       if (version == "latest") {
