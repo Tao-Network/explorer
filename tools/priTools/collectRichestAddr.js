@@ -1,4 +1,5 @@
 require( '../../db.js' );
+const fs = require('fs');
 var mongoose = require('mongoose');
 var Address = mongoose.model('Address');
 // var web3 = require('./../../routes/web3relay').web3;
@@ -28,7 +29,12 @@ async function test(num){
     }
     // console.log(addresses[i].addr, balancenum);
   }
-  console.log(result);
+  for (var i = 0; i < result.length; i++) {
+    result[i]
+    fs.appendFileSync('rich.txt', `${result[i].addr}  ${result[i].balance}
+`);
+  }
+  console.log('finished');
 }
 
 test(process.argv[2])
