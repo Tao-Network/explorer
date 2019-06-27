@@ -16,6 +16,7 @@ async function test(num){
     balance = web3.fromWei(balance, "ether");
     let balancenum = Number(balance)
     result[num] = {addr:addresses[i].addr,balance:balancenum};
+    console.log(i);
     for (let i = result.length - 1; i > 0; i--) {
       if (result[i].balance > result[i-1].balance) {
         let temp = result[i];
