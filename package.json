@@ -2,11 +2,11 @@
   "name": "EthereumClassicExplorer",
   "private": false,
   "version": "0.2.0",
-  "description": "A lightweight EtherZero block explorer",
+  "description": "A lightweight Tao block explorer",
   "repository": "https://github.com/ethereumproject/explorer",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently \"node tools/grabber.js \" \"node app.js\" ",
+    "start": "node app.js",
     "pretest": "copyfiles app.js app/  ",
     "test": "./node_modules/.bin/mocha --reporter spec  "
   },

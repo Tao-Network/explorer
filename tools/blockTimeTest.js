@@ -27,7 +27,7 @@ var listenBlocks = function(config, web3) {
 
 
 var config = {
-    "rpc": 'http://localhost:9646',
+    "rpc": 'https://rpc.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}]
 };
 

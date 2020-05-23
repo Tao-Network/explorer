@@ -11,8 +11,7 @@ var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 
 var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
-        config.gethPort.toString()));
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network'));
 
 
     if('listenOnly' in config && config.listenOnly === true) 
@@ -194,8 +193,7 @@ var writeTransactionsToDB = function(config, blockData) {
   Patch Missing Blocks
 */
 var patchBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.etherzero.org:' + 
-        config.gethPort.toString()));
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network'));
 
     // number of blocks should equal difference in block numbers
     var firstBlock = 0;
@@ -238,7 +236,7 @@ var blockIter = function(web3, firstBlock, lastBlock, config) {
 
 
 /** On Startup **/
-// geth --rpc --rpcaddr "localhost" --rpcport "9646"  --rpcapi "eth,net,web3"
+// geth --rpc --rpcaddr "localhost" --rpcport "8545"  --rpcapi "eth,net,web3"
 
 var config = {};
 
@@ -259,7 +257,7 @@ catch (error) {
 
 // set the default geth port if it's not provided
 if (!('gethPort' in config) || (typeof config.gethPort) !== 'number') {
-    config.gethPort = 9646; // default
+    config.gethPort = 8545; // default
 }
 
 // set the default output directory if it's not provided

@@ -1,5 +1,4 @@
 #!/bin/bash
-sudo su
 
 count=`ps aux | grep "grabber.js" | grep -v "grep" | wc -l`
 

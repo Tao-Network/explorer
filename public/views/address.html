@@ -7,7 +7,7 @@
         <div class="portlet-body">
           <div class="row">
               <div class="col-md-6 center">
-                  <div ><span class="eth-stat-text"> ETZ Balance </span> {{ addrBalance | number: 10 }} <br> </div>
+                  <div ><span class="eth-stat-text"> TAO Balance </span> {{ addrBalance | number: 10 }} <br> </div>
                   <div class="margin-top-20"><span class="eth-stat-text">Transactions</span> {{ count }}</div>
                   <div ng-show="isContract">
                     <div class="margin-top-20" ng-show="token.isVerified"><span class="eth-stat-text">Contract name </span> <a href="/token/{{token.address}}">{{token.name}}</a></div>
@@ -65,7 +65,7 @@
                             <th width="8%"> Block </th>
                             <th width="15%"> From </th>
                             <th width="15%"> To </th>
-                            <th width="10%"> ETZ </th>
+                            <th width="10%"> TAO </th>
                             <th width="0%"> gas </th>
                             <th width="12%"> Age </th>
                         </tr>
@@ -82,7 +82,7 @@
                           <th width="8%"> Block </th>
                           <th width="15%"> From </th>
                           <th width="15%"> To </th>
-                          <th width="10%"> ETZ </th>
+                          <th width="10%"> TAO </th>
                           <th width="0%"> gas </th>
                           <th></th>
                       </tr>
@@ -110,7 +110,7 @@
                                 <th> Block </th>
                                 <th> From </th>
                                 <th> To </th>
-                                <th> ETZ </th>
+                                <th> TAO </th>
                                 <th> Age </th>
                                 <!--th style="text-align:right"> Amount </th>
                                 <th>type</th-->

@@ -203,7 +203,7 @@ function httpReq(url, cb){
 var msCirculatingValue = function(req, res) {
   let balance = web3relay.web3.eth.getBalance("0x000000000000000000000000000000000000000a");
   balance = web3relay.web3.fromWei(balance, "ether");
-  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+  httpReq('http://api.bddfinex.com/market/ticker?market=TAOUSDT',(eventLogList)=>{
     eventLogList = JSON.parse(eventLogList);
     // console.log("eventLogList",eventLogList);
     let totalcapital=balance*Number(eventLogList.data.last);

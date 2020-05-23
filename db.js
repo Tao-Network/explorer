@@ -23,6 +23,11 @@ var Block = new Schema(
     "uncles": [String],
     "txs": [String],//same with transactions
     "witness": {type: String, index: true}
+    //signer: { type: String, index: true },
+    //m2: { type: String, index: true },
+    //status: { type: Boolean, default: false, index: true },
+    //finality: { type: Number, default: 0, index: true },
+    //updateFinalityTime: { type: Number, index: true },
 });
 
 //master node Info
@@ -153,6 +158,6 @@ module.exports.Witness = Witness;
 module.exports.LogEvent = mongoose.model('LogEvent');
 module.exports.Address = mongoose.model('Address');
 
-// mongoose.connect( 'mongodb://localhost/blockDB' );
-mongoose.connect('mongodb://etzscan:etz123@localhost:39462/blockDB', {useMongoClient:true});
+// mongoose.connect( 'mongodb://mongo/blockDB' );
+mongoose.connect('mongodb://mongo:27017/blockDB', {useMongoClient:true});
 mongoose.set('debug', false);

@@ -1,7 +1,7 @@
-### ETZExplorer 
+### Tao Scan 
 
-* Live Version: [etzscan.com](https://etzscan.com/)
-* Follow the project progress at: [ETZ Block Explorer Development](http://etherzero.org/) 
+* Live Version: [scan.tao.network](https://scan.tao.network/)
+* Follow the project progress at: [TAO Block Explorer Development](http://tao.network/) 
 
 #### Local installation
 
@@ -27,7 +27,7 @@ npm i
 
 ``` config models
 var config = {
-    "rpc": 'http://localhost:9646',
+    "rpc": 'https://rpc.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

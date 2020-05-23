@@ -45,7 +45,7 @@ var dupAddrs = [];
 
 //modify according to your actual situation.
 var config3 = {
-    "httpProvider":"http://localhost:9646",
+    "httpProvider":"https://rpc.tao.network",
     // "httpProvider":"http://etzrpc.org:80",
     "patchStartBlocks":0,//1
     "patchEndBlocks":4936270+1,//"latest",//5485123,//600

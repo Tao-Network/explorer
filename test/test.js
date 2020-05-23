@@ -10,8 +10,8 @@ var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 var Contract     = mongoose.model( 'Contract' );
-// var providerURL = 'http://localhost:9646';
-var providerURL = 'http://35.183.62.96:9646';
+// var providerURL = 'https://rpc.tao.network';
+var providerURL = 'http://35.183.62.96:8545';
 
 var startTest = function(config) {
     web3 = new Web3(new Web3.providers.HttpProvider(providerURL));
@@ -105,7 +105,7 @@ var sendRawTransaction = function(){
 }
 
 var config = {
-    "gethPort": 9646,
+    "gethPort": 8545,
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

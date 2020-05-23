@@ -7,7 +7,7 @@ var Web3 = require('web3');
 var mongoose = require( 'mongoose' );
 var Address = mongoose.model('Address');
 var Contract = mongoose.model('Contract');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
 var contractAddrs = [];
 
 var index = -1;

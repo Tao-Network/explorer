@@ -453,7 +453,7 @@ function patchNoReciept(){
 }
 
 var config = {
-    "rpc": 'http://localhost:9646',
+    "rpc": 'https://rpc.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}],
     // "blocks": [ {"start": 4936270, "end": "latest"}],//ttt
     "quiet": true,

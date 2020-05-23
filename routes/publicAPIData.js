@@ -4,7 +4,7 @@ var eth = require("./web3relay").eth;
 var filterBlocks = require('./filters').filterBlocks;
 var witnessListData = require('./witnessListData');
 
-var totalETZ = "totalETZ";
+var totalTAO = "totalTAO";
 var health = "health";
 var totalcapital = "totalcapital";
 var balance = "balance";
@@ -120,7 +120,7 @@ module.exports = function(req, res){
         methodName = req.query.action;
 
       switch(methodName){
-        case totalETZ:
+        case totalTAO:
           totalBlockNum = eth.blockNumber;
           onlyValue = requestParam(req, "onlyValue");
           value = 196263376+0.45*totalBlockNum;
@@ -141,7 +141,7 @@ module.exports = function(req, res){
           value = 196263376+0.45*totalBlockNum;
       	// {"status":0,,"data":{"time":1547621967,"period":86400,"last":"0.113554","open":"0.115308","close":"0.113554","high":"0.118053","low":"0.112","totalcapital":"18122.0096"}}
       	// {"status":1,"message":"OK","result":{"time":1547621967,"etzprice":"0.115308","currencyunit":"USD","totalcapital":"18122.0096"}}
-      	  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+      	  httpReq('http://api.bddfinex.com/market/ticker?market=TAOUSDT',(eventLogList)=>{
              eventLogList = JSON.parse(eventLogList);
              var ret ={};
         		ret.time=eventLogList.time;
@@ -646,7 +646,7 @@ module.exports.getTotalcapital = function(req, res){
   totalBlockNum = eth.blockNumber;
   onlyValue = requestParam(req, "onlyValue");
   value = 196263376+0.45*totalBlockNum;
-  httpReq('http://api.bddfinex.com/market/ticker?market=ETZUSDT',(eventLogList)=>{
+  httpReq('http://api.bddfinex.com/market/ticker?market=TAOUSDT',(eventLogList)=>{
 	eventLogList = JSON.parse(eventLogList);
  	console.log("eventLogList",eventLogList);
 	totalcapital=value*Number(eventLogList.data.last);

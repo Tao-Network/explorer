@@ -36,7 +36,7 @@
                     <tr ng-show="tx.needVerify"><td width="25%">Verify</td><td><a href="/verifycontract/{{tx.contractAddr}}">click here to verify your contract</a></td></tr> 
                     <!--tr ng-show="tx.ERC"><td width="25%">ERC</td><td>{{tx.ERC}}</td></tr--> 
                     <tr ng-show="tx.isTransfer"><td width="25%">Token Transfer:</td><td>{{tx.tokenNum}} <a href="/token/{{tx.contractAddr}}">{{tx.tokenName}}</a>   from <a href="/addr/{{tx.from}}">{{tx.from.substr(0,24)}}...</a>  to <a href="/addr/{{tx.to}}">{{tx.transerTo.substr(0,24)}}...</a></td></tr>
-                    <tr ><td width="25%">Value:</td><td>{{tx.value}} ETZ</td></tr>
+                    <tr ><td width="25%">Value:</td><td>{{tx.value}} TAO</td></tr>
                     <tr ><td width="25%">Gas Provided:</td><td>{{tx.gas}}</td></tr>
                     <tr ><td width="25%">GasPrice:</td><td>{{tx.gasPrice}}</td></tr>
                     <tr ><td width="25%">GasUsed:</td><td>{{tx.gasUsed}}</td></tr>

@@ -6,8 +6,8 @@ require( '../db-internal.js' );
 
 var http = require('http');
 var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://rpc.etherzero.org:9646"));
-// var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:9646"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+// var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
 
 var mongoose = require( 'mongoose' );
 var InternalTx     = mongoose.model( 'InternalTransaction' );
@@ -25,9 +25,9 @@ function grabInternalTxs(batchNum, batchSize) {
     "id":' + batchNum + '}';
 
   var post_options = {
-      // host: 'rpc.etherzero.org',
+      // host: 'rpc.tao.network',
       host: 'localhost',
-      port: '9646',
+      port: '8545',
       path: '/',
       method: 'POST',
       headers: { "Content-Type": "application/json" }
@@ -131,7 +131,7 @@ var getLatestBlocks = function(latest, start) {
 }
 
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/blockDB');
+mongoose.connect(process.env.MONGO_URI || 'mongodb://mongo/blockDB');
 mongoose.set('debug', true);
 
 var minutes = 5;

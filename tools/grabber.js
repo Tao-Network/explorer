@@ -67,6 +67,12 @@ var laterGrabBlockDatas = [];
 
 function connectWeb3(){
     web3 = new Web3(new Web3.providers.HttpProvider(config.rpc));
+    if (!web3.isConnected()) {
+        console.log("Reconnecting...");
+        connectWeb3() 
+    };
+    console.log("Connected to network RPC");
+
 }
 
 // //listen every history token in db
@@ -116,7 +122,7 @@ var intervalBlocks = function(_intervalTime) {
             lastBlockNum=0;
         else
             lastBlockNum = doc.number-1;//Avoid incomplete collection of the last block in the database
-
+        console.log("Start block: "+lastBlockNum)
         //remove lastest Block data in DB to avoid incomplete data
         Block.collection.remove({'number':lastBlockNum+1});
         LogEvent.collection.remove({'blockNumber':lastBlockNum+1});
@@ -218,6 +224,7 @@ var grabBlock = function(config, web3, blockHashOrNumber) {
     }
 
     if(web3.isConnected()) {
+        console.log("Grabbing block: "+blockHashOrNumber)
         web3.eth.getBlock(desiredBlockHashOrNumber, true, function(error, blockData) {
             if(error) {
                 console.log('Warning: error on getting block with hash/number: ' + desiredBlockHashOrNumber + ': ' + error);
@@ -286,6 +293,7 @@ var writeBlockToDB = function(config, blockData) {
 }
 
 var upsertAddress=function(miner, addrs){
+    console.log ("    Updating address: " + addrs);
     if(miner){
         //add reward to master node
         Address.update({"addr":miner},
@@ -296,7 +304,7 @@ var upsertAddress=function(miner, addrs){
                     console.log("err:", err);
             }
         )
-        //add reward to ETZ Community
+        //add reward to TAO Community
         Address.update({"addr":socailAddr},
             {$inc:{"balance":0.1125}},
             {upsert: true},
@@ -329,7 +337,7 @@ var upsertAddress=function(miner, addrs){
 
 var updateFromNode = function(addr){
     var balance = web3.eth.getBalance(addr);
-    if(balance<10000000000000000000)//save address which balance is great than 10 ETZ
+    if(balance<10000000000000000000)//save address which balance is great than 10 TAO
         return;
     Address.insertMany([{"addr":addr, "balance":Number(etherUnits.toEther(balance, 'wei'))}], function (err, doc) {
         if(err){
@@ -339,11 +347,16 @@ var updateFromNode = function(addr){
     });
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
     Break transactions out of blocks and write to DB
 **/
 var pingTXAddr = "0x000000000000000000000000000000000000000a";
 var writeTransactionsToDB = function(blockData) {
+    console.log("  Writing transactions...");
     var bulkOps = [];
     var innerTxs = null;
     var noReceiptTXs = [];
@@ -352,6 +365,9 @@ var writeTransactionsToDB = function(blockData) {
         for (d in blockData.transactions) {
             var txData = blockData.transactions[d];
             //receipt . maybe null at this moment
+            while (!web3.isConnected()) {
+                sleep(1000).then(() => { connectWeb3(); });
+            }
             var receiptData = web3.eth.getTransactionReceipt(txData.hash);
             if(!receiptData){
                 noReceiptTXs.push(txData);
@@ -480,7 +496,9 @@ var writeTransactionsToDB = function(blockData) {
                     var methodCode = txData.input.substr(0,10);
                     if(ERC20_METHOD_DIC[methodCode])
                         logEvent.methodName = ERC20_METHOD_DIC[methodCode];
-                    var eventCode = logItem.topics[0].substr(0,66);
+                    var eventCode = '';
+                    if(logItem.topics[0])
+                        var eventCode = logItem.topics[0].substr(0,66);
                     if(METHOD_DIC[eventCode])
                         logEvent.eventName = METHOD_DIC[eventCode];
                     logEvent.txHash= txData.hash;
@@ -630,11 +648,11 @@ var hex2ascii = function (hexIn) {
 
 
 var config = {
-    // "rpc": 'http://192.168.199.214:9646',//t
-    "rpc": 'http://localhost:9646',
+    // "rpc": 'http://192.168.199.214:8545',//t
+    //"rpc": 'https://rpc.tao.network',
     // "rpc": 'http://etzrpc.org:80',
-    // "rpc": 'http://13.115.55.39:9646',
-
+    // "rpc": 'http://13.115.55.39:8545',
+    "rpc": 'https://rpc.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

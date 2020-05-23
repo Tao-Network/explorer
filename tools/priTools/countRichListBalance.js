@@ -8,8 +8,8 @@ var rawFilePath = "./rich-list-100.txt";//w
 var content = fs.readFileSync(rawFilePath, "utf8");
 var rawAddrList = JSON.parse(content);//[addr,balance,addr,balance,...]
 
-var totalETZ = 0;
+var totalTAO = 0;
 for(var i=0; i<rawAddrList.length; i+=2){
-    totalETZ+=rawAddrList[i+1];
+    totalTAO+=rawAddrList[i+1];
 }
-console.log("totalETZ:",totalETZ);
+console.log("totalTAO:",totalTAO);
