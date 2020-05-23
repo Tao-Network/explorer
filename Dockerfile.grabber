@@ -1,0 +1,8 @@
+FROM node:latest
+
+COPY . /
+
+RUN npm i
+RUN chmod +x tools/check_restart.sh
+RUN chmod +x tools/grabber_entrypoint.sh
+ENTRYPOINT ["tools/grabber_entrypoint.sh"]

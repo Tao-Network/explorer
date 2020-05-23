@@ -1,0 +1,21 @@
+version: "3.2"
+services:
+  mongodb_container:
+    image: "mongo:latest"
+    container_name: "mongo"
+    volumes:
+      - "./data:/data/db"
+    ports:
+      - "27017:27017"
+  taoscan:
+    image: "taoscan:latest"
+    container_name: "taoscan"
+    command: start
+    ports:
+      - "80:80"
+      - "3000:3000"
+    restart: unless-stopped
+  taoscan_grabber:
+    image: "taoscan_grabber:latest"
+    container_name: "taoscan_grabber"
+    restart: unless-stopped
