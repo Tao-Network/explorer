@@ -27,7 +27,7 @@ npm i
 
 ``` config models
 var config = {
-    "rpc": 'https://rpc.tao.network',
+    "rpc": 'https://rpc.testnet.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

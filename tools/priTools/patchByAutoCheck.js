@@ -33,7 +33,7 @@ const METHOD_DIC = {
 
 //modify according to your actual situation.
 var config3 = {
-    "httpProvider":"https://rpc.tao.network",
+    "httpProvider":"https://rpc.testnet.tao.network",
     // "httpProvider":"http://etzrpc.org:80",
     "patchStartBlocks": 5607035,//1
     "patchEndBlocks": 5607035,//"latest",//5485123,//600

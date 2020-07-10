@@ -36,7 +36,7 @@ const ERC20_METHOD_DIC = { '0xa9059cbb': 'transfer', '0xa978501e': 'transferFrom
  * bulkSize: size of array in block to use bulk operation
  */
 // load config.json
-const config = { nodeAddr: 'rpc.tao.network', wsPort: 443, bulkSize: 100 };
+const config = { nodeAddr: 'rpc.testnet.tao.network', wsPort: 443, bulkSize: 100 };
 try {
   var local = require('../config.json');
   _.extend(config, local);

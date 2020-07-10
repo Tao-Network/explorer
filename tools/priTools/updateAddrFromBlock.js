@@ -14,7 +14,7 @@ var insertNum = 0;
 var fromBlock = 4438399;
 var toBlock = 4619223;
 var addrList = [];
-var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
 
 function grabeMiner(){
     Block.find({"number":{$gt:fromBlock, $lt:toBlock}}, "miner").exec((err, docs)=>{

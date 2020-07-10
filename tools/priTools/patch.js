@@ -63,7 +63,7 @@ const METHOD_DIC = {
 
 //modify according to your actual situation.
 var config3 = {
-    "httpProvider":"https://rpc.tao.network",
+    "httpProvider":"https://rpc.testnet.tao.network",
     // "httpProvider":"http://etzrpc.org:80",
     // "httpProvider":"http://13.250.204.142:8545",
     "patchStartBlocks":2591,//contain patchStartBlocks
@@ -451,8 +451,8 @@ var writeTransactionsToDB3 = function(blockData, eth) {
 */
 var patchBlocks3 = function() {
     // web3 = new Web3(new Web3.providers.HttpProvider('http://106.14.105.179:8545'));
-    // web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.tao.network:80'));
-    // web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network:443'));
+    // web3 = new Web3(new Web3.providers.HttpProvider('http://rpc.testnet.tao.network:80'));
+    // web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.testnet.tao.network:443'));
     web3 = new Web3(new Web3.providers.HttpProvider(config3.httpProvider));
     var lastBlock = web3.eth.blockNumber;
     if(config3.patchEndBlocks == "latest"){

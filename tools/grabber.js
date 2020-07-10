@@ -649,10 +649,10 @@ var hex2ascii = function (hexIn) {
 
 var config = {
     // "rpc": 'http://192.168.199.214:8545',//t
-    //"rpc": 'https://rpc.tao.network',
+    //"rpc": 'https://rpc.testnet.tao.network',
     // "rpc": 'http://etzrpc.org:80',
     // "rpc": 'http://13.115.55.39:8545',
-    "rpc": 'https://rpc.tao.network',
+    "rpc": 'https://rpc.testnet.tao.network',
     "blocks": [ {"start": 0, "end": "latest"}],
     "quiet": true,
     "terminateAtExistingDB": false,

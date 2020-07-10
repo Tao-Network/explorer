@@ -10,7 +10,7 @@ var mongoose = require( 'mongoose' );
 var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 var Contract     = mongoose.model( 'Contract' );
-// var providerURL = 'https://rpc.tao.network';
+// var providerURL = 'https://rpc.testnet.tao.network';
 var providerURL = 'http://35.183.62.96:8545';
 
 var startTest = function(config) {

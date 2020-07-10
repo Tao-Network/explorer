@@ -8,8 +8,8 @@ var mongoose = require( 'mongoose' );
 var BlockStat = require( '../db-stats.js' ).BlockStat;
 
 var updateStats = function() {
-    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network')); 
-    //var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network')); 
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.testnet.tao.network')); 
+    //var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.testnet.tao.network')); 
     mongoose.connect(process.env.MONGO_URI || 'mongodb://mongo/blockDB');
     mongoose.set('debug', true);
 

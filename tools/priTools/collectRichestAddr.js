@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var Address = mongoose.model('Address');
 // var web3 = require('./../../routes/web3relay').web3;
 var Web3 = require('web3');
-var rpc = "https://rpc.tao.network";
+var rpc = "https://rpc.testnet.tao.network";
 var web3 = new Web3(new Web3.providers.HttpProvider(rpc));
 
 async function test(num){

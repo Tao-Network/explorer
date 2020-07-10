@@ -11,7 +11,7 @@ var Block     = mongoose.model( 'Block' );
 var Transaction     = mongoose.model( 'Transaction' );
 
 var grabBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network'));
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.testnet.tao.network'));
 
 
     if('listenOnly' in config && config.listenOnly === true) 
@@ -193,7 +193,7 @@ var writeTransactionsToDB = function(config, blockData) {
   Patch Missing Blocks
 */
 var patchBlocks = function(config) {
-    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.tao.network'));
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.testnet.tao.network'));
 
     // number of blocks should equal difference in block numbers
     var firstBlock = 0;

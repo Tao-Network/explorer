@@ -21,7 +21,7 @@ if (typeof web3 !== "undefined") {
   web3 = new Web3(web3.currentProvider);
 } else {
   // web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.199.214:8545"));//t
-  web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+  web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
   masternodeContract = web3.eth.contract(masternodeAbi).at('0x000000000000000000000000000000000000000a');
   // web3 = new Web3(new Web3.providers.HttpProvider("http://etzrpc.org:80"));
   // web3 = new Web3(new Web3.providers.HttpProvider("http://13.115.55.39:8545"));

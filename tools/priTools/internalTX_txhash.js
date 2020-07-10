@@ -11,7 +11,7 @@ var toBlock = 8204323;//查询结束区块（不包含本身）
 var txhashList = [];
 var internalPage = 0;
 var pageSize = 500;
-var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
 
 
 function quereyTX(){//

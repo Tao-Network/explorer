@@ -5,7 +5,7 @@ var Web3 = require('web3');
 
 var mongoose = require( 'mongoose' );
 var Address = mongoose.model('Address');
-var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
 var rawAddrList = [];
 var index = -1;
 var insertNum = 0;

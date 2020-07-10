@@ -6,8 +6,8 @@ require( '../db-internal.js' );
 
 var http = require('http');
 var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
-// var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.tao.network"));
+var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
+// var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.testnet.tao.network"));
 
 var mongoose = require( 'mongoose' );
 var InternalTx     = mongoose.model( 'InternalTransaction' );
@@ -25,7 +25,7 @@ function grabInternalTxs(batchNum, batchSize) {
     "id":' + batchNum + '}';
 
   var post_options = {
-      // host: 'rpc.tao.network',
+      // host: 'rpc.testnet.tao.network',
       host: 'localhost',
       port: '8545',
       path: '/',

@@ -67,7 +67,7 @@ var witnessMap = JSON.parse(content);//{blockNumber:witness}
 
 //modify according to your actual situation.
 var config3 = {
-    "httpProvider":"https://rpc.tao.network",
+    "httpProvider":"https://rpc.testnet.tao.network",
     // "httpProvider":"http://etzrpc.org:80",
     "patchStartBlocks":7595453,//contain patchStartBlocks
     "patchEndBlocks":7690561+1,//"latest",//5485123,//600//not contain patchEndBlocks
